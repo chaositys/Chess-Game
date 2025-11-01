@@ -965,13 +965,13 @@ while running:
         selecties,Turn = drawBoard(selecties,Turn)
     
     if len(kingsAlive)!=2:
-        running == False
-    else:
-        if kingsAlive[0]==kingsAlive[1]:
-            running=False
-        else:
+        running = False
+    elif len(kingsAlive)== 2:
+        running = True
+        kingsAlive=[]
+        
             
-            kingsAlive=[]
+           
     pyg.display.flip()
     clock.tick(60)
 
