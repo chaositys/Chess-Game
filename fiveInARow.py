@@ -1,6 +1,6 @@
 import pygame as pyg
 from pygame.locals import *
-
+from time import sleep
 
 
 """
@@ -696,8 +696,17 @@ WhitebishopImage= pyg.image.load("Whitebishop.png")
 WhitequeenImage= pyg.image.load("Whitequeen.png")
 WhitekingImage= pyg.image.load("Whiteking.png")
 StartupSound = pyg.mixer.Sound("StartupSound.mp3")
+StartupSound.set_volume(0.3)
 ErrorClickSound = pyg.mixer.Sound("ErrorClickSound.wav")
+ErrorClickSound.set_volume(0.2)
 ClickSound = pyg.mixer.Sound("MouseClick.mp3")
+ClickSound.set_volume(0.15)
+TakeSound = pyg.mixer.Sound("takesound.mp3")
+TakeSound.set_volume(0.6)
+BackgroundMusic = pyg.mixer.music.load("backgroundMusic.mp3")
+
+WinSound = pyg.mixer.Sound("WinSound.mp3")
+WinSound.set_volume(0.075)
 keys = []
 key_colour=""
 selected =""
@@ -842,15 +851,17 @@ def drawBoard(selecties,colourturn):
                                 colourturn="black"
                             else:
                                 colourturn="white"
+                            pyg.mixer.Sound.play(TakeSound)
                                 
                     else:
                         pyg.mixer.Sound.play(ErrorClickSound)
                 else:
                     if board[selecties[0]][0].movePiece(selecties[1]):
-                            if colourturn== "white":
-                                colourturn="black"
-                            else:
-                                colourturn="white"  
+                        if colourturn== "white":
+                            colourturn="black"
+                        else:
+                            colourturn="white"  
+                        
                 selecties=[]            
                 
 
@@ -924,6 +935,8 @@ Turn = "white"
 
 pyg.mixer.Sound.play(StartupSound)
 
+pyg.mixer.music.play(-1)
+pyg.mixer.music.set_volume(0.1)
 
 while running:
     for event in pyg.event.get():
@@ -974,8 +987,18 @@ while running:
            
     pyg.display.flip()
     clock.tick(60)
-
+pyg.mixer.Sound.play(WinSound)
+print("Closing")
+sleep(0.4)
+print("Closing.")
+sleep(0.4)
+print("Closing..")
+sleep(0.4)
+print("Closing...")
+sleep(0.4)
+print()
 pyg.quit()
+
 print(f"-"*31)
 print(f"-"*31)
 print(f"---CONGRATUATIONS {kingsAlive[0][1].upper()} WINS---")
