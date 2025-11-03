@@ -666,6 +666,7 @@ class Kingpiece(piece):
                     if oldpos[1]+squaresize*multiple== newpos[1]:
                         return True
                     multiple+=addon
+                    """
 print()
 print()
 print("*"*45)       
@@ -674,6 +675,82 @@ print("*"*45)
 print()
 print()
 input("Press Enter to play!")
+
+time to add a main menu screen that is launched when u start the game.
+
+"""
+def checkhoverbutton(mouse_pos,pos,size):
+    hover =False
+    if mouse_pos[0]>pos[0] and mouse_pos[0]<pos[0]+size[0]:
+        if mouse_pos[1]>pos[1] and mouse_pos[1]<pos[1]+size[1]:
+            hover=True
+    return hover
+def drawbutton(pos,clicked,startScreen):
+    mouse_pos = pyg.mouse.get_pos()
+    size = (150,60)
+    hover = False
+    textpos = (pos[0]+size[0]*0.06,pos[1]+size[1]*0.3)
+    
+    hover=checkhoverbutton(mouse_pos,pos,size)
+    singlePlayerText = font.render("Play: Co-op",True,(0,0,0))
+    
+    if hover:
+        colour = (100,100,127)
+    else:
+        colour = (200,200,255)
+    clickedcheck = checkforclick(hover,clicked)
+    pyg.draw.rect(startScreen,colour,(pos[0],pos[1],size[0],size[1]),0,6)
+    pyg.draw.rect(startScreen,(0,0,0),(pos[0],pos[1],size[0],size[1]),3,6)
+    startScreen.blit(singlePlayerText,textpos)
+    return(pos,size,clickedcheck)
+def checkforclick(hover,button_down):
+    
+    if hover and button_down:
+        print("click")
+        return True
+    else:
+        return False
+    
+def startscreen():
+    running=True
+    clicked=False
+    pyg.mixer.Sound.play(StartupSound)
+    startScreen = pyg.display.set_mode((1000,800))
+    startScreen.fill((62,0,207))
+    while running:
+        for event in pyg.event.get():
+            if event.type == pyg.QUIT:
+                running=False
+                raise SystemExit
+            elif event.type == pyg.MOUSEBUTTONUP:
+                if event.button==1:
+                    clicked = True
+            elif event.type == pyg.MOUSEBUTTONDOWN:
+                if event.button==1:
+                    pyg.mixer.Sound.play(ClickSound)
+            
+            
+        coopPlayButton = drawbutton((425,560),clicked,startScreen)
+        if coopPlayButton[2]== True:
+            running = False
+        pyg.display.flip()
+        clock.tick(60)
+    pyg.quit()
+
+pyg.init()
+clock = pyg.time.Clock()
+logo = pyg.image.load("spess logo.png")
+pyg.display.set_icon(logo)
+pyg.display.set_caption("Spess")
+logo = pyg.image.load("spess logo.png")
+font = pyg.font.Font(None, 36)
+StartupSound = pyg.mixer.Sound("StartupSound.mp3")
+StartupSound.set_volume(1)
+ClickSound = pyg.mixer.Sound("MouseClick.mp3")
+ClickSound.set_volume(0.15)
+startscreen()
+
+
 pyg.init()
 screendimention = 1000 
 screen = pyg.display.set_mode((screendimention, screendimention))
@@ -957,10 +1034,7 @@ def change_to_hover_colour(hovering_square):
     new_colour = (current_colour[0]+40,current_colour[1]+40,current_colour[2]-40) 
     board[hovering_square][2] = new_colour
   
-def change_to_normal_colour(hovering_square):
-    current_colour = board[hovering_square][2] 
-    new_colour = (current_colour[0]-40,current_colour[1]-40,current_colour[2]+40) 
-    board[hovering_square][2] = new_colour
+
     
 def handle_hovering_square():
     hovering_square = whichsquarehover()
@@ -982,7 +1056,7 @@ def checkforking():
             if board[key][0].getname()=="king":
                 kings.append((key,board[key][0].getColour()))
     return kings
-pyg.mixer.Sound.play(StartupSound)
+
 
 pyg.mixer.music.play(-1)
 pyg.mixer.music.set_volume(0.6)
