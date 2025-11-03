@@ -369,7 +369,7 @@ class Bishopiece(piece):
         
         
     """not DONE AND ITS MAKING ME CRYYYYYYYYYYYYYYYYYYYYYYYY"""
-    """OMG OMGNDK NFDJASIOFJO ASDJIOF JIAOS ITS DOEEEEEEEEEEEEEEEEEEE DONE  YES YES YES FIXEDC DOEN AND ALLLLLLLLLLL!!!!!!!!!!!!!   fuckkkkkkkkkkkkkk stupid death link shit."""
+    """OMG OMGNDK NFDJASIOFJO ASDJIOF JIAOS ITS DOEEEEEEEEEEEEEEEEEEE DONE  YES YES YES FIXEDC DOEN AND ALLLLLLLLLLL!!!!!!!!!!!!!   frickkkkkkkkkk stupid death link ."""
 class Castlepiece(piece):
     def __init__(self,square,colour,pieceImage,boardSize,incrementAmound,selfdeathlinkpartner):
         super().__init__(square,colour,pieceImage,boardSize,incrementAmound,"castle")
@@ -677,7 +677,9 @@ input("Press Enter to play!")
 pyg.init()
 screendimention = 1000 
 screen = pyg.display.set_mode((screendimention, screendimention))
-pyg.display.set_caption("Five in a row")
+pyg.display.set_caption("Spess")
+logo = pyg.image.load("spess logo.png")
+pyg.display.set_icon(logo)
 font = pyg.font.Font(None, 36)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -696,7 +698,7 @@ WhitebishopImage= pyg.image.load("Whitebishop.png")
 WhitequeenImage= pyg.image.load("Whitequeen.png")
 WhitekingImage= pyg.image.load("Whiteking.png")
 StartupSound = pyg.mixer.Sound("StartupSound.mp3")
-StartupSound.set_volume(0.3)
+StartupSound.set_volume(1)
 ErrorClickSound = pyg.mixer.Sound("ErrorClickSound.wav")
 ErrorClickSound.set_volume(0.2)
 ClickSound = pyg.mixer.Sound("MouseClick.mp3")
@@ -825,12 +827,15 @@ def drawBoard(selecties,colourturn):
                     board[key][2] = (160,160,160)
         if board[key][3]:
             board[key][3]=False
+            old_colour = board[key][2]
+            
             
             selecties.append(key)
             
             if board[selecties[0]][0]!="null":
                 
                 print(selecties)
+                board[key][2]=(81,168,93)
                 
                 
                 
@@ -841,6 +846,18 @@ def drawBoard(selecties,colourturn):
                 
             elif len(selecties)==2:
                 if board[selecties[0]][0].getColour() != colourturn:
+                    var1 = ord(selecties[0][1])-ord("a")+int(selecties[0][0])
+                    var2 = ord(selecties[1][1])-ord("a")+int(selecties[1][0])
+                    if var1%2!=0:
+                        
+                        board[selecties[0]][2]=(80,80,80)
+                    elif var1%2==0:
+                        board[selecties[0]][2]=(160,160,160)
+                    if var2%2!=0:
+                            
+                        board[selecties[1]][2]=(80,80,80)
+                    elif var2%2==0:
+                        board[selecties[1]][2]=(160,160,160)
                     selecties=[]
                     
                     pyg.mixer.Sound.play(ErrorClickSound)
@@ -852,15 +869,41 @@ def drawBoard(selecties,colourturn):
                             else:
                                 colourturn="white"
                             pyg.mixer.Sound.play(TakeSound)
+                    
                                 
                     else:
                         pyg.mixer.Sound.play(ErrorClickSound)
+                    var1 = ord(selecties[0][1])-ord("a")+int(selecties[0][0])
+                    var2 = ord(selecties[1][1])-ord("a")+int(selecties[1][0])
+                    if var1%2!=0:
+                            
+                        board[selecties[0]][2]=(80,80,80)
+                    elif var1%2==0:
+                        board[selecties[0]][2]=(160,160,160)
+                    if var2%2!=0:
+                            
+                        board[selecties[1]][2]=(80,80,80)
+                    elif var2%2==0:
+                        board[selecties[1]][2]=(160,160,160)
                 else:
                     if board[selecties[0]][0].movePiece(selecties[1]):
                         if colourturn== "white":
                             colourturn="black"
                         else:
                             colourturn="white"  
+                    var1 = ord(selecties[0][1])-ord("a")+int(selecties[0][0])
+                    var2 = ord(selecties[1][1])-ord("a")+int(selecties[1][0])
+                    if var1%2!=0:
+                            
+                        board[selecties[0]][2]=(80,80,80)
+                    elif var1%2==0:
+                        board[selecties[0]][2]=(160,160,160)
+                    if var2%2!=0:
+                            
+                        board[selecties[1]][2]=(80,80,80)
+                    elif var2%2==0:
+                        board[selecties[1]][2]=(160,160,160)
+                
                         
                 selecties=[]            
                 
@@ -932,11 +975,17 @@ makeboardstruct()
 Turn = "white"
 
 
-
+def checkforking():
+    kings=[]
+    for key in keys:
+        if board[key][0]!="null":
+            if board[key][0].getname()=="king":
+                kings.append((key,board[key][0].getColour()))
+    return kings
 pyg.mixer.Sound.play(StartupSound)
 
 pyg.mixer.music.play(-1)
-pyg.mixer.music.set_volume(0.1)
+pyg.mixer.music.set_volume(0.6)
 
 while running:
     for event in pyg.event.get():
@@ -978,7 +1027,13 @@ while running:
         selecties,Turn = drawBoard(selecties,Turn)
     
     if len(kingsAlive)!=2:
-        running = False
+        kingsAlive=checkforking()
+        if len(kingsAlive)!=2:
+        
+            running = False
+        elif len(kingsAlive)==2:
+            running=True
+            kingsAlive=[]
     elif len(kingsAlive)== 2:
         running = True
         kingsAlive=[]
