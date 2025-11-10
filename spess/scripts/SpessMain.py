@@ -578,8 +578,8 @@ class Kingpiece(piece):
             secondcastle = self.squareToCordinates(castlepos[1])
             castlepos = (firstcastle,secondcastle)
             squaresize = self.boardSize/8
+
             if len(castlepos)>1:
-                
                 if firstcastle[1]== secondcastle[1]== self.squareToCordinates(self.square)[1]:
                     if (firstcastle[0]+squaresize*2 == secondcastle[0] and firstcastle[0]+squaresize ==self.squareToCordinates(self.square)[0])or (secondcastle[0]+squaresize*2 == firstcastle[0] and secondcastle[0]+squaresize ==self.squareToCordinates(self.square[0])):
                         return True,"v"
@@ -599,8 +599,9 @@ class Kingpiece(piece):
         if self.ismovevalid(newSquare):
             oldSqare = self.square
             self.square = newSquare
-            board[self.square][0] = Kingpiece(self.square,self.colour,self.pieceImage,self.boardSize,self.incrementAmound)
+            board[self.square][0] = Kingpiece(self.square, self.colour, self.pieceImage, self.boardSize, self.incrementAmound)
             self.pieceCapture(oldSqare)#sets old square to "null"
+
             return True
         else:
             pyg.mixer.Sound.play(ErrorClickSound)
@@ -820,14 +821,20 @@ clicked = False
 board = {}
 selecties = []
 
+# Themes
+BOARD_LIGHT = (207, 181, 149)
+BOARD_DARK = (81, 59, 40)
+ACTIVE_PATH1 = (21, 148, 91)
+ACTIVE_PATH2 = (15, 107, 66)
+HOVER1 = (120,120,40)
+HOVER2 = (200,200,120)
+
 def makeboardstruct():
     x,y = 0,0
     board_width = 1000
     letter = "a"
     number = 1
-    colour1 = (80,80,80)
-    colour2 = (160,160,160)
-    current_colour = colour1
+    current_colour = BOARD_LIGHT
     square_width = board_width/8
 
     for lettercount in range (0,8):
@@ -837,14 +844,14 @@ def makeboardstruct():
             x+=square_width
             
             number+=1
-            if current_colour == colour1:
-                current_colour = colour2
+            if current_colour == BOARD_LIGHT:
+                current_colour = BOARD_DARK
             else:
-                current_colour = colour1
-        if current_colour == colour1:
-            current_colour = colour2
+                current_colour = BOARD_LIGHT
+        if current_colour == BOARD_LIGHT:
+            current_colour = BOARD_DARK
         else:
-            current_colour = colour1
+            current_colour = BOARD_LIGHT
 
         letter = chr(ord(letter)+1)
         y+=square_width
@@ -903,6 +910,16 @@ def makeboardstruct():
     
 kingsAlive = []
     
+def checkforking():
+    kings = []
+
+    for key in keys:
+        z = board[key][0]
+        if z and z != "null" and z.getname() == "king":
+            kings.append((key, z.getColour()))
+
+    return kings
+
 def drawBoard(selecties,colourturn):
     handle_hovering_square()
     square_size = 1000/8
@@ -914,20 +931,17 @@ def drawBoard(selecties,colourturn):
         y = pos[1]
 
         # Win condition
-        if board[key][0] != "null":
-            if board[key][0].getname() == "king":
-                kingsAlive.append((key, board[key][0].getColour()))
+        '''
+            if board[key][0] != "null":
+                if board[key][0].getname() == "king":
+                    kingsAlive.append((key, board[key][0].getColour()))
+        '''
 
         # Hovering code
-        ACTIVE_PATH1 = (21, 148, 91)
-        ACTIVE_PATH2 = (15, 107, 66)
-        HOVER1 = (120,120,40)
-        HOVER2 = (200,200,120)
-        CALCULATED_COLOR = (board[key][5] == (80,80,80) and ACTIVE_PATH2 or ACTIVE_PATH1)
+        CALCULATED_COLOR = (board[key][5] == BOARD_DARK and ACTIVE_PATH2 or ACTIVE_PATH1)
 
-        # (board[key][5] == (80,80,80) and (120,120,40) or (200,200,120))
         isSelected = len(selecties) > 0 and selecties[0] == key
-        calculatedColour = (board[key][6] and CALCULATED_COLOR) or (isSelected and CALCULATED_COLOR) or (board[key][4] and (board[key][5] == (80,80,80) and HOVER1 or HOVER2) or board[key][5]) or board[key][5]
+        calculatedColour = (board[key][6] and CALCULATED_COLOR) or (isSelected and CALCULATED_COLOR) or (board[key][4] and (board[key][5] == BOARD_DARK and HOVER1 or HOVER2) or board[key][5]) or board[key][5]
         board[key][2] = calculatedColour
 
         if board[key][3]:
@@ -982,6 +996,8 @@ def drawBoard(selecties,colourturn):
     colour ---> (10,10,10) what ever the colour of the square is right now
     selected ---> a true of false value that says if the square is selected or not.
     hover ---> a true of false value that says if the mouse is hovering over this square or not.
+    originalGrid --> the original grid background colour
+    pathFound --> saves if the path was found or not for showing all valid paths.
 """
 
 def whichsquarehover():
@@ -1019,16 +1035,6 @@ screen.fill((0,0,0))
 makeboardstruct()
 Turn = "white"
 
-def checkforking():
-    kings = []
-
-    for key in keys:
-        z = board[key][0]
-        if z and z != "null" and z.getname() == "king":
-            kings.append((key, z.getColour()))
-
-    return kings
-
 def aiturn():
     pass
 
@@ -1062,7 +1068,7 @@ while running:
                 pyg.mixer.Sound.play(ClickSound)
             
     selecties,Turn = drawBoard(selecties,Turn)
-    # kingsAlive = checkforking()
+    kingsAlive = checkforking()
 
     if len(kingsAlive) != 2:
         running = False
@@ -1070,7 +1076,7 @@ while running:
     elif len(kingsAlive) == 2:
         running = True
         kingsAlive = []
-            
+
     pyg.display.flip()
     # print(clock.get_fps())
     clock.tick(60)
