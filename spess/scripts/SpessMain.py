@@ -366,7 +366,6 @@ class Castlepiece(piece):
     def getposdeathlinkpartner(self):
         return self.selfdeathlinkpartner
     def deathlinkpartnerfinder(self):
-       
         if self.square == "1a":
             return "1h"
         if self.square == "1h":
@@ -793,7 +792,6 @@ PieceSet = startscreen(PieceSet)
 with open("../Data/currentpack.txt","w",encoding="utf-8") as f:
     f.write(PieceSet)
 
-
 pyg.init() 
 screendimention = 1000 
 screen = pyg.display.set_mode((screendimention, screendimention))
@@ -806,11 +804,8 @@ BLACK = (0, 0, 0)
 running = True
 clock = pyg.time.Clock()
 
-
-    
 #seb you need to find a way to retrive this json file and then read from it, although i might just use a text file, 
 #after this retrieve what is in there it should be like DefaultPieces or smth then put that as a string and put it into the place i get my assets from
-
 
 BlackpawnImage = pyg.image.load(f"../Assets/{PieceSet}/blackAssets/Blackpawn.png")
 BlackrookImage = pyg.image.load(f"../Assets/{PieceSet}/blackAssets/Blackrook.png")
