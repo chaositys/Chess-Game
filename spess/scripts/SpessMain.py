@@ -156,10 +156,10 @@ class Pawnpiece(piece):
 class Dragonpiece(piece):
     def __init__(self,square,colour,pieceImage,boardSize,incrementAmound,canactlikecastle):
         super().__init__(square,colour,pieceImage,boardSize,incrementAmound,"dragon")
-        self.canactlikecastle=canactlikecastle
+        self.canactlikecastle = canactlikecastle
 
     def movePiece(self,newSquare):
-        if self.ismovevalid(newSquare):
+        if self.ismovevalid(newSquare, True):
             oldSqare = self.square
             self.square = newSquare
 
@@ -173,8 +173,8 @@ class Dragonpiece(piece):
         else:
             pyg.mixer.Sound.play(ErrorClickSound)
 
-    def ismovevalid(self, newSquare):
-        squaresize = self.boardSize/8
+    def ismovevalid(self, newSquare, istakingPiece=False):
+        squaresize = self.boardSize/8  
         newSquareCordinate = self.squareToCordinates(newSquare)
         oldSquareCordinates = self.squareToCordinates()
         squarescanmoveto = self.wherecanmove()
@@ -191,7 +191,7 @@ class Dragonpiece(piece):
             print("can act")
             validornot = self.ismovevalidcastlemove(newSquare)
 
-            if validornot:
+            if validornot and istakingPiece:
                 self.canactlikecastle = False
         return validornot
     
@@ -202,12 +202,9 @@ class Dragonpiece(piece):
         vertical = 0
         horizontal = 0
 
-        print("1")
         if newSquare == self.square:
-            print("false1")
             return False
         
-        print("2")
         if newSquarepos[0] != oldsquarepos[0]:
             if newSquarepos[1] == oldsquarepos[1]:
                 if newSquarepos[0] < oldsquarepos[0]:
