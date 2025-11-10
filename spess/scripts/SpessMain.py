@@ -2,7 +2,6 @@ import pygame as pyg
 from pygame.locals import *
 from time import sleep
 from Buttoncreation import Button
-import json
 
 """
                 
@@ -31,10 +30,11 @@ import json
                 
                 """
 def modulus(number):
-    if number>=0:
+    if number >= 0:
         return number
     else:
         return number*-1
+    
 class piece:
     def __init__(self,square,colour,pieceImage,boardSize,incrementAmound,name):
         self.square = square
@@ -44,24 +44,21 @@ class piece:
         self.incrementAmound = incrementAmound
         self.captured = False
         self.name = name
+
     def getColour(self):
         return self.colour
+    
     def isCaptured(self):
         self.captured = True
+
     def squareToCordinates(self, newsquare = 0):
         if newsquare == 0: 
             squaresize = self.boardSize/8
-            
-            
             letter =  ord(self.square[1])-ord("a")
-            
-            #so this is quite experimental code, i think it should work however i don't know if this is how unicode arithmatic works.
-            
             number = int(self.square[0])-1
-            
             pos = (number*squaresize,letter*squaresize)
+
             return pos
-    
         else:
             squaresize = self.boardSize/8
             letter =  ord(newsquare[1])-ord("a")
@@ -69,6 +66,7 @@ class piece:
             number = int(newsquare[0])-1
             pos = (number*squaresize,letter*squaresize)
             return pos
+        
     def cordinatesToSquare(self,pos):
         squaresize = self.boardSize/8
         num=1
@@ -76,7 +74,6 @@ class piece:
         x=0
         y=0
         while True:
-            
             if x!=pos[0]:
                 num+=1
                 x+=squaresize
@@ -86,8 +83,8 @@ class piece:
                     y+=squaresize
                     
                 elif y==pos[1]:
-                   
                     return str(num)+chr(letter+ord("a"))
+                
     def getname(self):
         return self.name
     
@@ -150,8 +147,7 @@ class Pawnpiece(piece):
                     return board.get(newSquare)[0] != "null"
                 
                 else:
-                    return board.get(newSquare)[0] == "null"
-                    
+                    return board.get(newSquare)[0] == "null"   
         return False
                         
 class Dragonpiece(piece):
@@ -251,7 +247,6 @@ class Dragonpiece(piece):
         newsquares.append(newnumber+newletter2)
         
         #left
-
         newnumber =str(number-2)
         newsquares.append(newnumber+newletter1)
         newsquares.append(newnumber+newletter2)
@@ -361,12 +356,14 @@ class Castlepiece(piece):
             self.deathlinkpartnerfinder = selfdeathlinkpartner
         elif selfdeathlinkpartner == "":
             self.selfdeathlinkpartner = self.deathlinkpartnerfinder()
+
     def setposdeathlinkpartner(self,newposforpartner):
         self.selfdeathlinkpartner = newposforpartner
+
     def getposdeathlinkpartner(self):
         return self.selfdeathlinkpartner
+    
     def deathlinkpartnerfinder(self):
-       
         if self.square == "1a":
             return "1h"
         if self.square == "1h":
@@ -383,7 +380,6 @@ class Castlepiece(piece):
             if board[self.selfdeathlinkpartner][0].getname() != "castle":
                 print("deathlinkpartner is dead")
                 dead = True
-
             else:
                 board[self.selfdeathlinkpartner][0].setposdeathlinkpartner(newSquare)
                 
@@ -640,6 +636,7 @@ class Kingpiece(piece):
                         return True
                     multiple+=addon
                 #need to check if there is anything in the way
+
             elif canslidecheck[1]== "v":
                 if xdiff != 0:
                     return False
@@ -661,22 +658,10 @@ class Kingpiece(piece):
                     
                     multiple+=addon
 
-"""
-print()
-print()
-print("*"*45)       
-print("Welcome to my chess game i hope u enjoy!!!!!!")
-print("*"*45)
-print()
-print()
-input("Press Enter to play!")
-time to add a main menu screen that is launched when u start the game.
-"""
-
 def startscreen(PieceSet):
     print(PieceSet)
-    running = True
-    clicked = False
+    running=True
+    clicked=False
     
     screenstage = "Start"
     pyg.mixer.Sound.play(StartupSound)
@@ -685,20 +670,25 @@ def startscreen(PieceSet):
     startScreen = pyg.display.set_mode((screenX,screenY))
     screenFillColour = (62,0,207)
     startScreen.fill(screenFillColour)
-    defaultimagepack = pyg.image.load("../Assets/DefaultPieces/DefaultPiecesSet.png")
-    defaultimagepackHover = pyg.image.load("../Assets/DefaultPieces/DefaultPiecesSetHover.png")
-    goldimagepack = pyg.image.load("../Assets/GoldPieces/GoldPiecesSet.png")
-    goldimagepackHover = pyg.image.load("../Assets/GoldPieces/GoldPiecesSetHover.png")
-    defaultimagepackrectvalue = pyg.Rect(screenX/8,screenY/8,100,101)
-    #Christmasimagepackrectvalue = pyg.Rect(2*screenX/8,screenY/8,100,101)
-    Goldimagepackrectvalue = pyg.Rect(2*screenX/8,screenY/8,100,101)#image is 100 px long and 101 pixels high so this is why i set these values ik its annoying its not both 100 but i can't do much now
+    currentsets = ["Default","Gold"]
+    imageicons = {}
+    
+    xindex = 1
+    yindex = 1
+    padding = 0
+    for pack in currentsets:
+        imageicons[pack] = [pyg.image.load(f"../Assets/{pack}Pieces/PiecesSet.png"),pyg.image.load(f"../Assets/{pack}Pieces/PiecesSetHover.png"),pyg.Rect(xindex*screenX/8,padding+(yindex*screenY/8),100,101)]
+        if xindex>=6:
+            xindex = 0
+            yindex +=1
+            if yindex == 2:
+                padding+=20
+                
+        xindex+=1
+        
     coopPlayButton = Button(startScreen,screenX/2,2*(screenY/3),"Play: Offline",30,10)
     InventoryButton = Button(startScreen,(screenX/2),3*(screenY/4),"Inventory",30,10)
     returnButton = Button(startScreen,screenX/20,screenY/20,"X",30,10,"CRIMSON")
-    allPieceSets = {
-        "DefaultPieces":(defaultimagepack,defaultimagepackHover,defaultimagepackrectvalue,0),
-        "GOLDPIECES":(goldimagepack,goldimagepackHover,Goldimagepackrectvalue,1)
-    }
 
     while running:
         for event in pyg.event.get():
@@ -725,22 +715,21 @@ def startscreen(PieceSet):
                 startScreen.fill(screenFillColour)
                 pyg.draw.rect(startScreen,(200,200,200),(screenX/10,screenY/10,8*screenX/10,6*screenY/8))
                 pyg.draw.rect(startScreen,(0,0,0),(screenX/10,screenY/10,8*screenX/10,6*screenY/8),2)
-                
-                
+                   
         elif screenstage == "Inventory":
             
             if returnButton.makeButton(mouse_pos) and clicked:
                 screenstage = "Start"
                 startScreen.fill(screenFillColour)
             else:
-                for k in allPieceSets:
-                    setImage = allPieceSets[k][0]
-                    setImageHover = allPieceSets[k][1]
-                    SetRect = allPieceSets[k][2]
-                    numinset = allPieceSets[k][3]+1
+                for k in currentsets:
+                    setImage = imageicons[k][0]
+                    setImageHover = imageicons[k][1]
+                    SetRect = imageicons[k][2]
                     
-                    screenXPlacment = numinset*(screenX/8)
-                    screenYPlacment = (screenY/8)
+                    screenXPlacment = SetRect[0]
+                    screenYPlacment = SetRect[1]
+
                     if SetRect.collidepoint(mouse_pos):
                         
                         startScreen.blit(setImageHover,(screenXPlacment,screenYPlacment))
@@ -754,28 +743,12 @@ def startscreen(PieceSet):
                                 print(f"Piece Set {PieceSet} is already selected!!!")
                     else: 
                         startScreen.blit(setImage,(screenXPlacment,screenYPlacment))
-
-                    
-            
-                
+      
         clicked = False
         pyg.display.flip()
         clock.tick(60)
     pyg.quit()
     return PieceSet
-def inventoryscreen():
-    running=True
-    clicked=False
-    pyg.mixer.Sound.play(StartupSound)
-    inventoryScreen = pyg.display.set_mode((1000,800))
-    inventoryscreen.fill((138,0,0))
-    while running:
-        for event in pyg.event.get():
-            if event.type == QUIT:
-                running=False
-                raise SystemExit
-        
-    pass
 
 pyg.init()
 clock = pyg.time.Clock()
@@ -787,10 +760,12 @@ StartupSound = pyg.mixer.Sound("../Audio/StartupSound.mp3")
 StartupSound.set_volume(1)
 ClickSound = pyg.mixer.Sound("../Audio/MouseClick.mp3")
 ClickSound.set_volume(0.15)
+
 with open("../Data/currentpack.txt","r",encoding="utf-8") as f:
     PieceSet = f.read()
+
 PieceSet = startscreen(PieceSet)
-with open("../Data/currentpack.txt","w",encoding="utf-8") as f:
+with open("../Data/Currentpack.txt","w",encoding="utf-8") as f:
     f.write(PieceSet)
 
 
@@ -798,7 +773,7 @@ pyg.init()
 screendimention = 1000 
 screen = pyg.display.set_mode((screendimention, screendimention))
 pyg.display.set_caption("Spess")
-logo = pyg.image.load("../Assets/Logo/spessLogo.ico")
+logo = pyg.image.load("../Assets/Logo/SpessLogo.ico")
 pyg.display.set_icon(logo)
 font = pyg.font.Font(None, 36)
 WHITE = (255, 255, 255)
@@ -806,24 +781,18 @@ BLACK = (0, 0, 0)
 running = True
 clock = pyg.time.Clock()
 
-
-    
-#seb you need to find a way to retrive this json file and then read from it, although i might just use a text file, 
-#after this retrieve what is in there it should be like DefaultPieces or smth then put that as a string and put it into the place i get my assets from
-
-
-BlackpawnImage = pyg.image.load(f"../Assets/{PieceSet}/blackAssets/Blackpawn.png")
-BlackrookImage = pyg.image.load(f"../Assets/{PieceSet}/blackAssets/Blackrook.png")
-BlackkniteImage= pyg.image.load(f"../Assets/{PieceSet}/blackAssets/Blackknite.png")
-BlackbishopImage= pyg.image.load(f"../Assets/{PieceSet}/blackAssets/Blackbishop.png")
-BlackqueenImage= pyg.image.load(f"../Assets/{PieceSet}/blackAssets/Blackqueen.png")
-BlackkingImage= pyg.image.load(f"../Assets/{PieceSet}/blackAssets/Blackking.png")
-WhitepawnImage = pyg.image.load(f"../Assets/{PieceSet}/whiteAssets/Whitepawn.png")
-WhiterookImage = pyg.image.load(f"../Assets/{PieceSet}/whiteAssets/Whiterook.png")
-WhitekniteImage = pyg.image.load(f"../Assets/{PieceSet}/whiteAssets/Whiteknite.png")
-WhitebishopImage= pyg.image.load(f"../Assets/{PieceSet}/whiteAssets/Whitebishop.png")
-WhitequeenImage= pyg.image.load(f"../Assets/{PieceSet}/whiteAssets/Whitequeen.png")
-WhitekingImage= pyg.image.load(f"../Assets/{PieceSet}/whiteAssets/Whiteking.png")
+BlackpawnImage = pyg.image.load(f"../Assets/{PieceSet}Pieces/blackAssets/Blackpawn.png")
+BlackrookImage = pyg.image.load(f"../Assets/{PieceSet}Pieces/blackAssets/Blackrook.png")
+BlackkniteImage= pyg.image.load(f"../Assets/{PieceSet}Pieces/blackAssets/Blackknite.png")
+BlackbishopImage= pyg.image.load(f"../Assets/{PieceSet}Pieces/blackAssets/Blackbishop.png")
+BlackqueenImage= pyg.image.load(f"../Assets/{PieceSet}Pieces/blackAssets/Blackqueen.png")
+BlackkingImage= pyg.image.load(f"../Assets/{PieceSet}Pieces/blackAssets/Blackking.png")
+WhitepawnImage = pyg.image.load(f"../Assets/{PieceSet}Pieces/whiteAssets/Whitepawn.png")
+WhiterookImage = pyg.image.load(f"../Assets/{PieceSet}Pieces/whiteAssets/Whiterook.png")
+WhitekniteImage = pyg.image.load(f"../Assets/{PieceSet}Pieces/whiteAssets/Whiteknite.png")
+WhitebishopImage= pyg.image.load(f"../Assets/{PieceSet}Pieces/whiteAssets/Whitebishop.png")
+WhitequeenImage= pyg.image.load(f"../Assets/{PieceSet}Pieces/whiteAssets/Whitequeen.png")
+WhitekingImage= pyg.image.load(f"../Assets/{PieceSet}Pieces/whiteAssets/Whiteking.png")
 StartupSound = pyg.mixer.Sound("../Audio/StartupSound.mp3")
 StartupSound.set_volume(1)
 ErrorClickSound = pyg.mixer.Sound("../Audio/ErrorClickSound.wav")
@@ -1102,6 +1071,6 @@ for i in range(1,5):
     print(f"-" * 31 )
 
 print("Closing")
-sleep(5)
+sleep(2)
 
 pyg.quit()
