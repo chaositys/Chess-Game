@@ -126,12 +126,12 @@ class Pawnpiece(piece):
         return 0
     def movePiece(self,newSquare):
         if self.ismoveValid(newSquare):
-            
+            self.pieceCapture(newSquare)
             
             oldSqare = self.square
             self.square = newSquare
             board[self.square][0] = Pawnpiece(self.square,self.colour,self.pieceImage,self.boardSize,self.incrementAmound)
-            self.pieceCapture(oldSqare)#sets old square to "null"
+            self.pieceCapture(oldSqare)
             return True
         else:
             pyg.mixer.Sound.play(ErrorClickSound)
@@ -142,28 +142,15 @@ class Pawnpiece(piece):
         squaresize = self.boardSize/8
         newSquareCordinate = self.squareToCordinates(newSquare)
         oldSquareCordinates = self.squareToCordinates()
-       
         if newSquareCordinate[1] == (oldSquareCordinates[1] + squaresize*self.movemeantdirectionvalue):
-            
-
             if newSquareCordinate[0] >= oldSquareCordinates[0]-squaresize and newSquareCordinate[0]<= oldSquareCordinates[0]+squaresize :
-
                 if newSquareCordinate[0]== oldSquareCordinates[0]:
-
                     if board.get(newSquare)[0] != "null":
-                        if board.get(newSquare)[0].getColour() == self.getColour():
-                            print("invalid move, can't play a piece on your own piece, if this is a bug see is move valid fucntion within class") 
-                            return False
-                        else:
-                            self.pieceCapture(newSquare)
-                            print("will capture ",newSquare)
-                            return True
-                            
+                        if board.get(newSquare)[0].getColour() != self.getColour():
+                            return True                        
                     else:
                         print("invalid move, can't move directly ahead when there is not piece to capture")
-                        return False
-                    
-                    
+                        return False                 
                 else:
                     print("got here")
                     if board.get(newSquare)[0] == "null":
@@ -829,18 +816,18 @@ clock = pyg.time.Clock()
 #after this retrieve what is in there it should be like DefaultPieces or smth then put that as a string and put it into the place i get my assets from
 
 
-BlackpawnImage = pyg.image.load(f"../Assets/{PieceSet}/blackAssets/Blackpawn.png")
-BlackrookImage = pyg.image.load(f"../Assets/{PieceSet}/blackAssets/Blackrook.png")
-BlackkniteImage= pyg.image.load(f"../Assets/{PieceSet}/blackAssets/Blackknite.png")
-BlackbishopImage= pyg.image.load(f"../Assets/{PieceSet}/blackAssets/Blackbishop.png")
-BlackqueenImage= pyg.image.load(f"../Assets/{PieceSet}/blackAssets/Blackqueen.png")
-BlackkingImage= pyg.image.load(f"../Assets/{PieceSet}/blackAssets/Blackking.png")
-WhitepawnImage = pyg.image.load(f"../Assets/{PieceSet}/whiteAssets/Whitepawn.png")
-WhiterookImage = pyg.image.load(f"../Assets/{PieceSet}/whiteAssets/Whiterook.png")
-WhitekniteImage = pyg.image.load(f"../Assets/{PieceSet}/whiteAssets/Whiteknite.png")
-WhitebishopImage= pyg.image.load(f"../Assets/{PieceSet}/whiteAssets/Whitebishop.png")
-WhitequeenImage= pyg.image.load(f"../Assets/{PieceSet}/whiteAssets/Whitequeen.png")
-WhitekingImage= pyg.image.load(f"../Assets/{PieceSet}/whiteAssets/Whiteking.png")
+BlackpawnImage = pyg.image.load(f"../Assets/{PieceSet}Pieces/blackAssets/Blackpawn.png")
+BlackrookImage = pyg.image.load(f"../Assets/{PieceSet}Pieces/blackAssets/Blackrook.png")
+BlackkniteImage= pyg.image.load(f"../Assets/{PieceSet}Pieces/blackAssets/Blackknite.png")
+BlackbishopImage= pyg.image.load(f"../Assets/{PieceSet}Pieces/blackAssets/Blackbishop.png")
+BlackqueenImage= pyg.image.load(f"../Assets/{PieceSet}Pieces/blackAssets/Blackqueen.png")
+BlackkingImage= pyg.image.load(f"../Assets/{PieceSet}Pieces/blackAssets/Blackking.png")
+WhitepawnImage = pyg.image.load(f"../Assets/{PieceSet}Pieces/whiteAssets/Whitepawn.png")
+WhiterookImage = pyg.image.load(f"../Assets/{PieceSet}Pieces/whiteAssets/Whiterook.png")
+WhitekniteImage = pyg.image.load(f"../Assets/{PieceSet}Pieces/whiteAssets/Whiteknite.png")
+WhitebishopImage= pyg.image.load(f"../Assets/{PieceSet}Pieces/whiteAssets/Whitebishop.png")
+WhitequeenImage= pyg.image.load(f"../Assets/{PieceSet}Pieces/whiteAssets/Whitequeen.png")
+WhitekingImage= pyg.image.load(f"../Assets/{PieceSet}Pieces/whiteAssets/Whiteking.png")
 StartupSound = pyg.mixer.Sound("../Audio/StartupSound.mp3")
 StartupSound.set_volume(1)
 ErrorClickSound = pyg.mixer.Sound("../Audio/ErrorClickSound.wav")
@@ -944,7 +931,7 @@ kingsAlive = []
     
 def drawBoard(selecties,colourturn):
     handle_hovering_square()
-    square_size = 1000/8
+    square_size = 1000/8    
     
     for key in keys:
         item = board[key][0]
