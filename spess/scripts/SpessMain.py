@@ -1081,8 +1081,8 @@ while running:
 
     elif len(kingsAlive) == 2:
         running = True
-        kingsAlive = []
-            
+        kingsAlive=[]
+           
     pyg.display.flip()
     # print(clock.get_fps())
     clock.tick(60)
