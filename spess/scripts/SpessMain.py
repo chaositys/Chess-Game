@@ -90,6 +90,7 @@ class piece:
                     return str(num)+chr(letter+ord("a"))
     def getname(self):
         return self.name
+    
     def pieceCapture(self,newSquare):
         piece = 0
         
@@ -97,6 +98,7 @@ class piece:
             board.get(newSquare)[piece].isCaptured()
             board[newSquare][piece] = "null"
         """this function will remove any piece that is on a square at one time. so if you do willpieceCapture("A1") then the piece on A1 will be set to captured."""
+    
     def displayPiece(self):
         if not self.captured:
             pos = self.squareToCordinates()
@@ -110,8 +112,6 @@ class piece:
             return 0
 
 class Pawnpiece(piece):
-    
-    
     def __init__(self,square,colour,pieceImage,boardSize,incrementAmound):
         super().__init__(square,colour,pieceImage,boardSize,incrementAmound,"pawn")
         self.movemeantdirectionvalue = self.movemeantDirection()
@@ -124,88 +124,87 @@ class Pawnpiece(piece):
         else:
             print(f"Error: could not assign directional value to pawn on {self.square}")
         return 0
+    
     def movePiece(self,newSquare):
-        if self.ismoveValid(newSquare):
-            
-            
+        if self.ismovevalid(newSquare):
             oldSqare = self.square
             self.square = newSquare
             board[self.square][0] = Pawnpiece(self.square,self.colour,self.pieceImage,self.boardSize,self.incrementAmound)
-            self.pieceCapture(oldSqare)
+            self.pieceCapture(oldSqare) # sets old square to "null"
+
             return True
         else:
             pyg.mixer.Sound.play(ErrorClickSound)
             
-    
-        
-    def ismoveValid(self,newSquare):
+    def ismovevalid(self, newSquare):
         squaresize = self.boardSize/8
         newSquareCordinate = self.squareToCordinates(newSquare)
         oldSquareCordinates = self.squareToCordinates()
-        if newSquareCordinate[1] == (oldSquareCordinates[1] + squaresize*self.movemeantdirectionvalue):
+        
+        if board.get(newSquare)[0] != "null" and board.get(newSquare)[0].getColour() == self.getColour():
+            return False
+        
+        if newSquareCordinate[1] == (oldSquareCordinates[1] + squaresize * self.movemeantdirectionvalue):
             if newSquareCordinate[0] >= oldSquareCordinates[0]-squaresize and newSquareCordinate[0]<= oldSquareCordinates[0]+squaresize :
-                if newSquareCordinate[0]== oldSquareCordinates[0]:
-                    if board.get(newSquare)[0] != "null":
-                        if board.get(newSquare)[0].getColour() != self.getColour():
-                            return True                        
-                    else:
-                        print("invalid move, can't move directly ahead when there is not piece to capture")
-                        return False                 
+                if newSquareCordinate[0] == oldSquareCordinates[0]:
+                    return board.get(newSquare)[0] != "null"
+                
                 else:
-                    if board.get(newSquare)[0] == "null":
-                        return True
-                    else:
-                        print("can't move there as there is a piece already there")
-                        return False
+                    return board.get(newSquare)[0] == "null"
+                    
+        return False
                         
-                        
-             
-    
-            
-    
 class Dragonpiece(piece):
     def __init__(self,square,colour,pieceImage,boardSize,incrementAmound,canactlikecastle):
         super().__init__(square,colour,pieceImage,boardSize,incrementAmound,"dragon")
         self.canactlikecastle=canactlikecastle
+
     def movePiece(self,newSquare):
-        if self.ismoveValid(newSquare):
-            
-            
+        if self.ismovevalid(newSquare):
             oldSqare = self.square
             self.square = newSquare
-            if board[newSquare][0]!="null":
-                if board[newSquare][0].getname()=="castle":
+
+            if board[newSquare][0] != "null":
+                if board[newSquare][0].getname() == "castle":
                     self.canactlikecastle = True
+
             board[self.square][0] = Dragonpiece(self.square,self.colour,self.pieceImage,self.boardSize,self.incrementAmound,self.canactlikecastle)
             self.pieceCapture(oldSqare)#sets old square to "null"
             return True
         else:
             pyg.mixer.Sound.play(ErrorClickSound)
-    def ismoveValid(self,newSquare):
+
+    def ismovevalid(self, newSquare):
         squaresize = self.boardSize/8
         newSquareCordinate = self.squareToCordinates(newSquare)
         oldSquareCordinates = self.squareToCordinates()
         squarescanmoveto = self.wherecanmove()
         validornot = False
         
+        if board.get(newSquare)[0] != "null" and board.get(newSquare)[0].getColour() == self.getColour():
+            return False
+    
         for item in squarescanmoveto:
             if item == newSquare:
-                validornot=  True
+                validornot = True
+
         if self.canactlikecastle:
             validornot = self.ismovevalidcastlemove(newSquare)
+
             if validornot:
-                self.canactlikecastle=False
+                self.canactlikecastle = False
         return validornot
+    
     def ismovevalidcastlemove(self,newSquare):
-        
         squaresize = self.boardSize/8
         oldsquarepos = self.squareToCordinates()
         newSquarepos = self.squareToCordinates(newSquare)
         vertical=0
-        
         horizontal=0
+
         if newSquare == self.square:
             return False
+        
         if newSquarepos[0]!=oldsquarepos[0]:
             if newSquarepos[1]== oldsquarepos[1]:
                 if newSquarepos[0]<oldsquarepos[0]:
@@ -215,25 +214,27 @@ class Dragonpiece(piece):
             else:
                 print("Invalid move has too be straight")
                 return False
+            
         elif newSquarepos[1] !=oldsquarepos[1]:
             if newSquarepos[0]== oldsquarepos[0]:
                 if newSquarepos[1]<oldsquarepos[1]:
                     vertical-=squaresize
                 else:
                     vertical+=squaresize
+
         ogvertical = vertical
         oghorizontal = horizontal
+
         while True:
             if oldsquarepos[0]+horizontal != newSquarepos[0] or oldsquarepos[1]+vertical!= newSquarepos[1]:
-                
-                
                 if board[self.cordinatesToSquare((oldsquarepos[0]+horizontal,oldsquarepos[1]+vertical))][0]!="null":
-                   
                     print(self.cordinatesToSquare((oldsquarepos[0]+horizontal,oldsquarepos[1]+vertical)))
                     print(f"Invalid move there is a piece in the way || Vertical ={vertical} || Horizontal = {horizontal}")
                     return False
+                
                 vertical+=ogvertical
-                horizontal+=oghorizontal    
+                horizontal+=oghorizontal
+
             elif oldsquarepos[0]+horizontal ==newSquarepos[0] and oldsquarepos[1]+vertical== newSquarepos[1]:
                 return True
                 
@@ -276,61 +277,62 @@ class Dragonpiece(piece):
                 if int(newsquares[i][0]) <= 8 and int(newsquares[i][0])>=0 and ord(newsquares[i][1])<=ord("h") and ord(newsquares[i][1])>=ord("a"): 
                     finalsquares.append(newsquares[i])
                 
-        
         return finalsquares
     
 class Bishopiece(piece):
     def __init__(self,square,colour,pieceImage,boardSize,incrementAmound):
-        super().__init__(square,colour,pieceImage,boardSize,incrementAmound,"bishop")
+        super().__init__(square,colour,pieceImage,boardSize,incrementAmound, "bishop")
         
     def movePiece(self,newSquare):
         if self.ismovevalid(newSquare):
-            
-            
             oldSqare = self.square
             self.square = newSquare
             board[self.square][0] = Bishopiece(self.square,self.colour,self.pieceImage,self.boardSize,self.incrementAmound)
             self.pieceCapture(oldSqare)#sets old square to "null"
+
             return True
         else:
             pyg.mixer.Sound.play(ErrorClickSound)
+
     def ismovevalid(self,newSquare):
         squaresize = self.boardSize/8
         currentsquarepos = self.squareToCordinates()
-        newsquarepos= self.squareToCordinates(newSquare)
+        newsquarepos = self.squareToCordinates(newSquare)
         possibleadditons = [(squaresize,squaresize),(squaresize,-squaresize),(-squaresize,squaresize),(-squaresize,-squaresize)]
         possiblepositions = []
-        possiblepositionsfinal=[]
+        possiblepositionsfinal = []
+
+        if board.get(newSquare)[0] != "null" and board.get(newSquare)[0].getColour() == self.getColour():
+            return False
+        
         for item in possibleadditons:
             for i in range(1,4):
                 possiblepositions.append((item[0]*(i*2)+currentsquarepos[0],item[1]*(i*2)+currentsquarepos[1]))
-        
-        
         
         for newdiagonalpos in possiblepositions:
             if newdiagonalpos[0]<1000 and newdiagonalpos[1]<1000 and newdiagonalpos[0]>=0 and newdiagonalpos[1]>=0:
                 possiblepositionsfinal.append(newdiagonalpos)
                 
-        
-        
-            
         for finalplace in possiblepositionsfinal:
             if finalplace[0] == newsquarepos[0] and finalplace[1]==newsquarepos[1]:
-                
                 diffenceInSquare = (newsquarepos[0]-currentsquarepos[0],newsquarepos[1]-currentsquarepos[1])
                 
                 horizontal = 0
                 verticl = 0
+
                 if diffenceInSquare[0]>0:
                     horizontal = 1
                 else:
                     horizontal = -1
+
                 if diffenceInSquare[1]>0:
                     verticl = 1
                 else:
                     verticl = -1
+
                 testposx = currentsquarepos[0]
                 testposy = currentsquarepos[1]
+
                 for i in range(0,4):
                     testposx+=squaresize*2*horizontal
                     if testposx>=1000:
@@ -342,21 +344,16 @@ class Bishopiece(piece):
                     testpos = testposx,testposy
                     
                     if self.cordinatesToSquare(testpos) != newSquare:
-                        if board[self.cordinatesToSquare(testpos)][0]!="null":
+                        if board[self.cordinatesToSquare(testpos)][0] != "null":
                             return False
+                        
                     elif self.cordinatesToSquare(testpos)== newSquare:
                         return True
-        
-            
-        
-        
         return False
-            
-                
-        
-        
+
     """not DONE AND ITS MAKING ME CRYYYYYYYYYYYYYYYYYYYYYYYY"""
     """OMG OMGNDK NFDJASIOFJO ASDJIOF JIAOS ITS DOEEEEEEEEEEEEEEEEEEE DONE  YES YES YES FIXEDC DOEN AND ALLLLLLLLLLL!!!!!!!!!!!!!   frickkkkkkkkkk stupid death link ."""
+
 class Castlepiece(piece):
     def __init__(self,square,colour,pieceImage,boardSize,incrementAmound,selfdeathlinkpartner):
         super().__init__(square,colour,pieceImage,boardSize,incrementAmound,"castle")
@@ -386,8 +383,8 @@ class Castlepiece(piece):
             if board[self.selfdeathlinkpartner][0].getname() != "castle":
                 print("deathlinkpartner is dead")
                 dead = True
+
             else:
-                
                 board[self.selfdeathlinkpartner][0].setposdeathlinkpartner(newSquare)
                 
             oldSqare = self.square
@@ -396,20 +393,21 @@ class Castlepiece(piece):
             board[self.square][0] = Castlepiece(self.square,self.colour,self.pieceImage,self.boardSize,self.incrementAmound,self.selfdeathlinkpartner)
             if not dead:
                 board[newSquare][0].setposdeathlinkpartner(self.selfdeathlinkpartner)
-            self.pieceCapture(oldSqare)#sets old square to "null"
+            self.pieceCapture(oldSqare) # sets old square to "null"
             return True
         else:
             pyg.mixer.Sound.play(ErrorClickSound)
+
     def ismovevalid(self,newSquare):
-        
         squaresize = self.boardSize/8
         oldsquarepos = self.squareToCordinates()
         newSquarepos = self.squareToCordinates(newSquare)
-        vertical=0
-        
-        horizontal=0
-        if newSquare == self.square:
+        vertical = 0
+        horizontal = 0
+
+        if newSquare == self.square or board.get(newSquare)[0] != "null" and board.get(newSquare)[0].getColour() == self.getColour():
             return False
+        
         if newSquarepos[0]!=oldsquarepos[0]:
             if newSquarepos[1]== oldsquarepos[1]:
                 if newSquarepos[0]<oldsquarepos[0]:
@@ -419,30 +417,34 @@ class Castlepiece(piece):
             else:
                 print("Invalid move has too be straight")
                 return False
+            
         elif newSquarepos[1] !=oldsquarepos[1]:
             if newSquarepos[0]== oldsquarepos[0]:
                 if newSquarepos[1]<oldsquarepos[1]:
                     vertical-=squaresize
                 else:
                     vertical+=squaresize
+
         ogvertical = vertical
         oghorizontal = horizontal
+
         while True:
-            if oldsquarepos[0]+horizontal != newSquarepos[0] or oldsquarepos[1]+vertical!= newSquarepos[1]:
-                
-                
-                if board[self.cordinatesToSquare((oldsquarepos[0]+horizontal,oldsquarepos[1]+vertical))][0]!="null":
-                   
+            if oldsquarepos[0]+horizontal != newSquarepos[0] or oldsquarepos[1]+vertical!= newSquarepos[1]: 
+                if board[self.cordinatesToSquare((oldsquarepos[0]+horizontal,oldsquarepos[1]+vertical))][0]!="null":    
                     print(self.cordinatesToSquare((oldsquarepos[0]+horizontal,oldsquarepos[1]+vertical)))
                     print(f"Invalid move there is a piece in the way || Vertical ={vertical} || Horizontal = {horizontal}")
                     return False
-                vertical+=ogvertical
-                horizontal+=oghorizontal    
+                
+                vertical += ogvertical
+                horizontal += oghorizontal
+
             elif oldsquarepos[0]+horizontal ==newSquarepos[0] and oldsquarepos[1]+vertical== newSquarepos[1]:
                 return True
+            
     def isCaptured(self):
         if not self.captured:
             self.captured = True
+
     def displayPiece(self):
         if board[self.selfdeathlinkpartner][0]!="null":
             if board[self.selfdeathlinkpartner][0].getname()=="castle":
@@ -451,14 +453,13 @@ class Castlepiece(piece):
                     posx= pos[0]+40
                     posy  = pos[1]+30
                     return self.pieceImage,(posx,posy)
+                
                 else:
                     print("Seb the piece is dead you will now need to make logic for this")
                     self.pieceCapture(self.selfdeathlinkpartner)
                     self.pieceCapture(self.square)
                     return 0
             else:
-                
-                
                 self.pieceCapture(self.square)
                 return 0
         else:
@@ -467,12 +468,11 @@ class Castlepiece(piece):
             self.pieceCapture(self.square)
             return 0
              
-    
-    
 class Queenpiece(piece):
     def __init__(self,square,colour,pieceImage,boardSize,incrementAmound,distance):
         super().__init__(square,colour,pieceImage,boardSize,incrementAmound,"queen")
         self.distance = distance
+
     def movePiece(self,newSquare):
         if self.ismovevalid(newSquare):
             if board[newSquare][0]!="null":
@@ -485,38 +485,37 @@ class Queenpiece(piece):
             return True
         else:
             pyg.mixer.Sound.play(ErrorClickSound)
+
     def ismovevalid(self,newSquare):
         squaresize = self.boardSize/8
         newpos = self.squareToCordinates(newSquare)
         oldpos = self.squareToCordinates()
         
-        vertical=0
+        vertical = 0
+        horizontal = 0
         
-        horizontal=0
-        
-        if self.distance<1:
+        if self.distance < 1 or board.get(newSquare)[0] != "null" and board.get(newSquare)[0].getColour() == self.getColour():
             return False
+        
         if newpos==oldpos:
             print(newSquare,self.square)
             print("invalid square can't move to the same square")
             return False
         
-        
-        
-        
-        
-            
-        if newpos[0]==oldpos[0] or newpos[1]==oldpos[1] :
-            if newpos[1]>oldpos[1]:
+        if newpos[0] == oldpos[0] or newpos[1] == oldpos[1] :
+            if newpos[1] > oldpos[1]:
                 vertical+=squaresize
-            elif newpos[1]<oldpos[1]:
+
+            elif newpos[1] < oldpos[1]:
                 vertical-=squaresize
                 
-            if newpos[0]>oldpos[0]:
+            if newpos[0] > oldpos[0]:
                 horizontal+=squaresize
-            elif newpos[0]<oldpos[0]:
+
+            elif newpos[0] < oldpos[0]:
                 horizontal-=squaresize
-        elif modulus(newpos[0]-oldpos[0])==modulus(newpos[1]-oldpos[1]):
+
+        elif modulus(newpos[0]-oldpos[0]) == modulus(newpos[1]-oldpos[1]):
             if newpos[1]>oldpos[1]:
                 vertical+=squaresize
             elif newpos[1]<oldpos[1]:
@@ -537,8 +536,10 @@ class Queenpiece(piece):
                 if board[self.cordinatesToSquare((oldpos[0]+horizontal,oldpos[1]+vertical))][0]!="null":
                     print("Invalid input")
                     return False
-                horizontal+=oghorizontal
-                vertical+=ogvertical
+                
+                horizontal += oghorizontal
+                vertical += ogvertical
+
             elif oldpos[0]+horizontal==newpos[0] and oldpos[1]+vertical==newpos[1]:
                 return True
                 
@@ -546,39 +547,34 @@ class Queenpiece(piece):
         print("-"*30)
         print(f"oldpos = {oldpos}     newpos = {newpos}    horizontal = {horizontal}    vertical = {vertical}")
         return False
-    
-            
-            
-            
-            
-        
-        
             
     def queenDegrade(self):
-        if self.distance>0:
-            self.distance-=1
-        
+        if self.distance > 0:
+            self.distance -= 1 
     
 class Kingpiece(piece):
     def __init__(self,square,colour,pieceImage,boardSize,incrementAmound):
         super().__init__(square,colour,pieceImage,boardSize,incrementAmound,"king")
         self.rookpostions = self.rookpositions()
+
     def rookpositions(self):
-        
-        castlepos= []
+        castlepos = []
         for key in keys:
             if board[key][0]!="null":
                 if board[key][0].getColour() == self.colour:
                     if board[key][0].getname()=="castle":
                           castlepos.append(key)
+
         return castlepos
+    
     def canslide(self):
         castlepos = self.rookpositions()
+
         if len(castlepos)>1:
             firstcastle = self.squareToCordinates(castlepos[0])
             secondcastle = self.squareToCordinates(castlepos[1])
             castlepos = (firstcastle,secondcastle)
-            squaresize = self.boardSize/86
+            squaresize = self.boardSize/8
             if len(castlepos)>1:
                 
                 if firstcastle[1]== secondcastle[1]== self.squareToCordinates(self.square)[1]:
@@ -598,8 +594,6 @@ class Kingpiece(piece):
         #checks if the rooks are either beside them and then it returns true and "v" or if the rooks are above and below the king  then it returns "h", h = horizontal movemeant, v = vertical movemeant.
     def movePiece(self,newSquare):
         if self.ismovevalid(newSquare):
-            
-            
             oldSqare = self.square
             self.square = newSquare
             board[self.square][0] = Kingpiece(self.square,self.colour,self.pieceImage,self.boardSize,self.incrementAmound)
@@ -607,6 +601,7 @@ class Kingpiece(piece):
             return True
         else:
             pyg.mixer.Sound.play(ErrorClickSound)
+
     def ismovevalid(self,newSquare):
         squaresize = self.boardSize/8
         newpos = self.squareToCordinates(newSquare)
@@ -614,6 +609,10 @@ class Kingpiece(piece):
         xdiff = modulus(oldpos[0]-newpos[0])
         ydiff = modulus(oldpos[1]-newpos[1])
         canslidecheck = self.canslide()
+
+        if board.get(newSquare)[0] != "null" and board.get(newSquare)[0].getColour() == self.getColour():
+            return False
+        
         if not canslidecheck:
             if xdiff >squaresize or ydiff>squaresize:
                 return False
@@ -621,39 +620,48 @@ class Kingpiece(piece):
                 return True
         else:
             if canslidecheck[1] == "h":
-                if ydiff!=0:
+                if ydiff != 0:
                     return False
+                
                 if newpos[0]> oldpos[0]:
                     multiple = 1
                     addon = 1
+
                 if newpos[0]<oldpos[0]:
                     multiple=-1
                     addon = -1
+
                 while True:
                     if oldpos[0]+squaresize*multiple!= newpos[0]:
                         if board[self.cordinatesToSquare((oldpos[0]+squaresize*multiple,oldpos[1]))][0]!="null":
                             return False
+                        
                     if oldpos[0]+squaresize*multiple== newpos[0]:
                         return True
                     multiple+=addon
                 #need to check if there is anything in the way
             elif canslidecheck[1]== "v":
-                if xdiff!=0:
+                if xdiff != 0:
                     return False
-                if newpos[1]> oldpos[1]:
+                
+                if newpos[1] > oldpos[1]:
                     multiple = 1
                     addon = 1
-                if newpos[1]<oldpos[1]:
+
+                if newpos[1] < oldpos[1]:
                     multiple=-1
                     addon = -1
+
                 while True:
-                    if oldpos[1]+squaresize*multiple!= newpos[1]:
-                        if board[self.cordinatesToSquare((oldpos[0],oldpos[1]+squaresize*multiple))][0]!="null":
+                    if oldpos[1] + squaresize * multiple != newpos[1]:
+                        if board[self.cordinatesToSquare((oldpos[0],oldpos[1]+squaresize*multiple))][0] != "null":
                             return False
-                    if oldpos[1]+squaresize*multiple== newpos[1]:
+                    if oldpos[1] + squaresize * multiple == newpos[1]:
                         return True
+                    
                     multiple+=addon
-                    """
+
+"""
 print()
 print()
 print("*"*45)       
@@ -662,16 +670,13 @@ print("*"*45)
 print()
 print()
 input("Press Enter to play!")
-
 time to add a main menu screen that is launched when u start the game.
-
 """
-
 
 def startscreen(PieceSet):
     print(PieceSet)
-    running=True
-    clicked=False
+    running = True
+    clicked = False
     
     screenstage = "Start"
     pyg.mixer.Sound.play(StartupSound)
@@ -680,28 +685,21 @@ def startscreen(PieceSet):
     startScreen = pyg.display.set_mode((screenX,screenY))
     screenFillColour = (62,0,207)
     startScreen.fill(screenFillColour)
-    currentsets = ["Default","Gold"]
-    imageicons = {}
-    
-    xindex = 1
-    yindex = 1
-    padding = 0
-    for pack in currentsets:
-        imageicons[pack] = [pyg.image.load(f"../Assets/{pack}Pieces/PiecesSet.png"),pyg.image.load(f"../Assets/{pack}Pieces/PiecesSetHover.png"),pyg.Rect(xindex*screenX/8,padding+(yindex*screenY/8),100,101)]
-        if xindex>=6:
-            xindex = 0
-            yindex +=1
-            if yindex == 2:
-                padding+=20
-                
-        xindex+=1
-        
-    
+    defaultimagepack = pyg.image.load("../Assets/DefaultPieces/DefaultPiecesSet.png")
+    defaultimagepackHover = pyg.image.load("../Assets/DefaultPieces/DefaultPiecesSetHover.png")
+    goldimagepack = pyg.image.load("../Assets/GoldPieces/GoldPiecesSet.png")
+    goldimagepackHover = pyg.image.load("../Assets/GoldPieces/GoldPiecesSetHover.png")
+    defaultimagepackrectvalue = pyg.Rect(screenX/8,screenY/8,100,101)
+    #Christmasimagepackrectvalue = pyg.Rect(2*screenX/8,screenY/8,100,101)
+    Goldimagepackrectvalue = pyg.Rect(2*screenX/8,screenY/8,100,101)#image is 100 px long and 101 pixels high so this is why i set these values ik its annoying its not both 100 but i can't do much now
     coopPlayButton = Button(startScreen,screenX/2,2*(screenY/3),"Play: Offline",30,10)
     InventoryButton = Button(startScreen,(screenX/2),3*(screenY/4),"Inventory",30,10)
     returnButton = Button(startScreen,screenX/20,screenY/20,"X",30,10,"CRIMSON")
-    
-    
+    allPieceSets = {
+        "DefaultPieces":(defaultimagepack,defaultimagepackHover,defaultimagepackrectvalue,0),
+        "GOLDPIECES":(goldimagepack,goldimagepackHover,Goldimagepackrectvalue,1)
+    }
+
     while running:
         for event in pyg.event.get():
             if event.type == pyg.QUIT:
@@ -735,15 +733,14 @@ def startscreen(PieceSet):
                 screenstage = "Start"
                 startScreen.fill(screenFillColour)
             else:
-                for k in currentsets:
-                    setImage = imageicons[k][0]
-                    setImageHover = imageicons[k][1]
-                    SetRect = imageicons[k][2]
+                for k in allPieceSets:
+                    setImage = allPieceSets[k][0]
+                    setImageHover = allPieceSets[k][1]
+                    SetRect = allPieceSets[k][2]
+                    numinset = allPieceSets[k][3]+1
                     
-                    
-                    screenXPlacment = SetRect[0]
-                    screenYPlacment = SetRect[1]
-                    
+                    screenXPlacment = numinset*(screenX/8)
+                    screenYPlacment = (screenY/8)
                     if SetRect.collidepoint(mouse_pos):
                         
                         startScreen.blit(setImageHover,(screenXPlacment,screenYPlacment))
@@ -782,7 +779,7 @@ def inventoryscreen():
 
 pyg.init()
 clock = pyg.time.Clock()
-logo = pyg.image.load("../Assets/Logo/SpessLogo.ico")
+logo = pyg.image.load("../Assets/Logo/spessLogo.ico")
 pyg.display.set_icon(logo)
 pyg.display.set_caption("Spess")
 font = pyg.font.Font(None, 36)
@@ -793,7 +790,7 @@ ClickSound.set_volume(0.15)
 with open("../Data/currentpack.txt","r",encoding="utf-8") as f:
     PieceSet = f.read()
 PieceSet = startscreen(PieceSet)
-with open("../Data/Currentpack.txt","w",encoding="utf-8") as f:
+with open("../Data/currentpack.txt","w",encoding="utf-8") as f:
     f.write(PieceSet)
 
 
@@ -801,7 +798,7 @@ pyg.init()
 screendimention = 1000 
 screen = pyg.display.set_mode((screendimention, screendimention))
 pyg.display.set_caption("Spess")
-logo = pyg.image.load("../Assets/Logo/SpessLogo.ico")
+logo = pyg.image.load("../Assets/Logo/spessLogo.ico")
 pyg.display.set_icon(logo)
 font = pyg.font.Font(None, 36)
 WHITE = (255, 255, 255)
@@ -815,18 +812,18 @@ clock = pyg.time.Clock()
 #after this retrieve what is in there it should be like DefaultPieces or smth then put that as a string and put it into the place i get my assets from
 
 
-BlackpawnImage = pyg.image.load(f"../Assets/{PieceSet}Pieces/blackAssets/Blackpawn.png")
-BlackrookImage = pyg.image.load(f"../Assets/{PieceSet}Pieces/blackAssets/Blackrook.png")
-BlackkniteImage= pyg.image.load(f"../Assets/{PieceSet}Pieces/blackAssets/Blackknite.png")
-BlackbishopImage= pyg.image.load(f"../Assets/{PieceSet}Pieces/blackAssets/Blackbishop.png")
-BlackqueenImage= pyg.image.load(f"../Assets/{PieceSet}Pieces/blackAssets/Blackqueen.png")
-BlackkingImage= pyg.image.load(f"../Assets/{PieceSet}Pieces/blackAssets/Blackking.png")
-WhitepawnImage = pyg.image.load(f"../Assets/{PieceSet}Pieces/whiteAssets/Whitepawn.png")
-WhiterookImage = pyg.image.load(f"../Assets/{PieceSet}Pieces/whiteAssets/Whiterook.png")
-WhitekniteImage = pyg.image.load(f"../Assets/{PieceSet}Pieces/whiteAssets/Whiteknite.png")
-WhitebishopImage= pyg.image.load(f"../Assets/{PieceSet}Pieces/whiteAssets/Whitebishop.png")
-WhitequeenImage= pyg.image.load(f"../Assets/{PieceSet}Pieces/whiteAssets/Whitequeen.png")
-WhitekingImage= pyg.image.load(f"../Assets/{PieceSet}Pieces/whiteAssets/Whiteking.png")
+BlackpawnImage = pyg.image.load(f"../Assets/{PieceSet}/blackAssets/Blackpawn.png")
+BlackrookImage = pyg.image.load(f"../Assets/{PieceSet}/blackAssets/Blackrook.png")
+BlackkniteImage= pyg.image.load(f"../Assets/{PieceSet}/blackAssets/Blackknite.png")
+BlackbishopImage= pyg.image.load(f"../Assets/{PieceSet}/blackAssets/Blackbishop.png")
+BlackqueenImage= pyg.image.load(f"../Assets/{PieceSet}/blackAssets/Blackqueen.png")
+BlackkingImage= pyg.image.load(f"../Assets/{PieceSet}/blackAssets/Blackking.png")
+WhitepawnImage = pyg.image.load(f"../Assets/{PieceSet}/whiteAssets/Whitepawn.png")
+WhiterookImage = pyg.image.load(f"../Assets/{PieceSet}/whiteAssets/Whiterook.png")
+WhitekniteImage = pyg.image.load(f"../Assets/{PieceSet}/whiteAssets/Whiteknite.png")
+WhitebishopImage= pyg.image.load(f"../Assets/{PieceSet}/whiteAssets/Whitebishop.png")
+WhitequeenImage= pyg.image.load(f"../Assets/{PieceSet}/whiteAssets/Whitequeen.png")
+WhitekingImage= pyg.image.load(f"../Assets/{PieceSet}/whiteAssets/Whiteking.png")
 StartupSound = pyg.mixer.Sound("../Audio/StartupSound.mp3")
 StartupSound.set_volume(1)
 ErrorClickSound = pyg.mixer.Sound("../Audio/ErrorClickSound.wav")
@@ -847,19 +844,19 @@ clicked = False
 board = {}
 selecties = []
 
-
 def makeboardstruct():
     x,y = 0,0
     board_width = 1000
     letter = "a"
     number = 1
-    colour1 =(80,80,80)
+    colour1 = (80,80,80)
     colour2 = (160,160,160)
     current_colour = colour1
     square_width = board_width/8
+
     for lettercount in range (0,8):
         for numbercount in range(0,8):
-            board[str(number)+letter] = ["null",(x,y),current_colour,False,False]
+            board[str(number)+letter] = ["null", (x,y), current_colour, False, False, current_colour, False]
             keys.append(str(number)+letter)
             x+=square_width
             
@@ -867,11 +864,12 @@ def makeboardstruct():
             if current_colour == colour1:
                 current_colour = colour2
             else:
-                current_colour=colour1
-        if current_colour ==colour1:
+                current_colour = colour1
+        if current_colour == colour1:
             current_colour = colour2
         else:
-            current_colour=colour1
+            current_colour = colour1
+
         letter = chr(ord(letter)+1)
         y+=square_width
         x=0
@@ -886,6 +884,7 @@ def makeboardstruct():
         collum = 6
         keynum = (row*collum)+i
         board[keys[keynum]][0] = Pawnpiece(keys[keynum],"white",WhitepawnImage,1000,10) 
+
     #Castles for the dragon to go tooooooooooooooo yaaaaaaaaas queen
     for i in range(0,8,7):
         collum=0
@@ -930,126 +929,66 @@ kingsAlive = []
     
 def drawBoard(selecties,colourturn):
     handle_hovering_square()
-    square_size = 1000/8    
+    square_size = 1000/8
     
     for key in keys:
         item = board[key][0]
         pos = board[key][1]
         x = pos[0]
         y = pos[1]
-        if board[key][0]!="null":
-            if board[key][0].getname()=="king":
-                kingsAlive.append((key,board[key][0].getColour()))
-        #ik this code is pretty bad as it is static, however i could not be asked to make it dynamic for this game as there is not really any point
-        if board[key][4]:
-            old_colour = board[key][2]
-            if old_colour == (80,80,80):
-                new_colour = (120,120,40)
-                board[key][2] = new_colour
-            elif old_colour == (160,160,160):
-                new_colour = (200,200,120)
-                board[key][2] = new_colour
-        else:
-            if board[key][2] == (120,120,40) or board[key][2] == (200,200,120):
-                if board[key][2] == (120,120,40):
-                    board[key][2] = (80,80,80)
-                else:
-                    board[key][2] = (160,160,160)
+
+        # Win condition
+        if board[key][0] != "null":
+            if board[key][0].getname() == "king":
+                kingsAlive.append((key, board[key][0].getColour()))
+
+        # Hovering code
+        isSelected = len(selecties) > 0 and selecties[0] == key
+        calculatedColour = (board[key][6] and (226, 135, 67)) or (isSelected and (81,168,93)) or (board[key][4] and (board[key][5] == (80,80,80) and (120,120,40) or (200,200,120)) or board[key][5]) or board[key][5]
+        board[key][2] = calculatedColour
+
         if board[key][3]:
-            board[key][3]=False
-            old_colour = board[key][2]
-            
+            board[key][3] = False
             
             selecties.append(key)
             
-            if board[selecties[0]][0]!="null":
-                
-                #print(selecties)
-                board[key][2]=(81,168,93)
-                
-                
-                
-            if board[selecties[0]][0]=="null":
-                selecties=[]
-                
-                pyg.mixer.Sound.play(ErrorClickSound)
-                
-            elif len(selecties)==2:
-                if board[selecties[0]][0].getColour() != colourturn:
-                    var1 = ord(selecties[0][1])-ord("a")+int(selecties[0][0])
-                    var2 = ord(selecties[1][1])-ord("a")+int(selecties[1][0])
-                    if var1%2!=0:
-                        
-                        board[selecties[0]][2]=(80,80,80)
-                    elif var1%2==0:
-                        board[selecties[0]][2]=(160,160,160)
-                    if var2%2!=0:
-                            
-                        board[selecties[1]][2]=(80,80,80)
-                    elif var2%2==0:
-                        board[selecties[1]][2]=(160,160,160)
-                    selecties=[]
-                    
-                    pyg.mixer.Sound.play(ErrorClickSound)
-                elif board[selecties[1]][0]!="null":
-                    if board[selecties[0]][0].getColour() != board[selecties[1]][0].getColour():
-                        if board[selecties[0]][0].movePiece(selecties[1]):
-                            if colourturn== "white":
-                                colourturn="black"
-                            else:
-                                colourturn="white"
-                            pyg.mixer.Sound.play(TakeSound)
-                    
-                                
-                    else:
-                        pyg.mixer.Sound.play(ErrorClickSound)
-                    var1 = ord(selecties[0][1])-ord("a")+int(selecties[0][0])
-                    var2 = ord(selecties[1][1])-ord("a")+int(selecties[1][0])
-                    if var1%2!=0:
-                            
-                        board[selecties[0]][2]=(80,80,80)
-                    elif var1%2==0:
-                        board[selecties[0]][2]=(160,160,160)
-                    if var2%2!=0:
-                            
-                        board[selecties[1]][2]=(80,80,80)
-                    elif var2%2==0:
-                        board[selecties[1]][2]=(160,160,160)
-                else:
-                    if board[selecties[0]][0].movePiece(selecties[1]):
-                        if colourturn== "white":
-                            colourturn="black"
-                        else:
-                            colourturn="white"  
-                    var1 = ord(selecties[0][1])-ord("a")+int(selecties[0][0])
-                    var2 = ord(selecties[1][1])-ord("a")+int(selecties[1][0])
-                    if var1%2!=0:
-                            
-                        board[selecties[0]][2]=(80,80,80)
-                    elif var1%2==0:
-                        board[selecties[0]][2]=(160,160,160)
-                    if var2%2!=0:
-                            
-                        board[selecties[1]][2]=(80,80,80)
-                    elif var2%2==0:
-                        board[selecties[1]][2]=(160,160,160)
-                
-                        
-                selecties=[]            
-                
+            if board[selecties[0]][0] != "null":
+                for i in board:
+                    board[i][6] = board[selecties[0]][0].ismovevalid(i)
 
-            
+            if board[selecties[0]][0] == "null":
+                selecties = []
+                pyg.mixer.Sound.play(ErrorClickSound)
+
+                for i in board:
+                    board[i][6] = False
+                
+            elif len(selecties) == 2:
+                print(board[selecties[0]][0].ismovevalid(selecties[1]))
+
+                if board[selecties[0]][0].getColour() != colourturn:
+                    pyg.mixer.Sound.play(ErrorClickSound)
+
+                elif board[selecties[0]][0].movePiece(selecties[1]):
+                    colourturn = colourturn == "white" and "black" or "white"
+
+                    if board[selecties[1]][0] != "null":
+                        pyg.mixer.Sound.play(TakeSound)
+   
+                selecties = []
+                for i in board:
+                    board[i][6] = False
+                
         pyg.draw.rect(screen, board[key][2],(x,y,square_size,square_size))
-        if item!="null":
-            
-            itemdisplay=board[key][0].displayPiece()
+
+        if item != "null":
+            itemdisplay = board[key][0].displayPiece()
+
             if itemdisplay!=0:
-                screen.blit(itemdisplay[0],itemdisplay[1])
+                screen.blit(itemdisplay[0], itemdisplay[1])
             #print(f"displayed piece {item.getColour()} {item.getname()} at {item. squareToCordinates()}")
     return selecties,colourturn
     
-
-
 """
     what should the board contain
     a set of keys that are {A1, A2 ... H7, H8} 
@@ -1061,6 +1000,7 @@ def drawBoard(selecties,colourturn):
     selected ---> a true of false value that says if the square is selected or not.
     hover ---> a true of false value that says if the mouse is hovering over this square or not.
 """
+
 def whichsquarehover():
     square_size = 1000/8
     posx = square_size
@@ -1068,54 +1008,49 @@ def whichsquarehover():
     number = 1
     letter = "a"
     mouse_pos = pyg.mouse.get_pos()
-    while mouse_pos[0]> posx:
-        
-        posx+=square_size
-        number+=1
-    while mouse_pos[1]> posy:
-        posy+=square_size
+
+    while mouse_pos[0] > posx:
+        posx += square_size
+        number += 1
+
+    while mouse_pos[1] > posy:
+        posy += square_size
         letter = chr(ord(letter)+1)
+
     return (str(number)+letter)
         
-    
-  
-  
 def change_to_hover_colour(hovering_square):
-    
-    
     current_colour = board[hovering_square][2] 
     new_colour = (current_colour[0]+40,current_colour[1]+40,current_colour[2]-40) 
     board[hovering_square][2] = new_colour
-  
-
     
 def handle_hovering_square():
     hovering_square = whichsquarehover()
+
     for key in keys:
         board[key][4] = False
+
     board[hovering_square][4] = True
     
-
-
 screen.fill((0,0,0))
 makeboardstruct()
 Turn = "white"
 
-
 def checkforking():
-    kings=[]
+    kings = []
+
     for key in keys:
-        if board[key][0]!="null":
-            if board[key][0].getname()=="king":
-                kings.append((key,board[key][0].getColour()))
+        z = board[key][0]
+        if z and z != "null" and z.getname() == "king":
+            kings.append((key, z.getColour()))
+
     return kings
 
-
-pyg.mixer.music.play(-1)
-pyg.mixer.music.set_volume(0.6)
 def aiturn():
     pass
 
+pyg.mixer.music.play(-1)
+pyg.mixer.music.set_volume(0.6)
 
 while running:
     for event in pyg.event.get():
@@ -1136,54 +1071,37 @@ while running:
                 -------------------
                 """
                 
-                
                 square_to_click = whichsquarehover()
-                
                 board[square_to_click][3] = True
-        elif event.type == pyg.MOUSEBUTTONDOWN:
-            if event.button==1:
-                pyg.mixer.Sound.play(ClickSound)
 
-    if Turn == "white":
-        selecties,Turn = drawBoard(selecties,Turn)
-    elif Turn == "black":
-        selecties,Turn = drawBoard(selecties,Turn)
-    
-    if len(kingsAlive)!=2:
-        kingsAlive=checkforking()
-        if len(kingsAlive)!=2:
-        
-            running = False
-        elif len(kingsAlive)==2:
-            running=True
-            kingsAlive=[]
-    elif len(kingsAlive)== 2:
-        running = True
-        kingsAlive=[]
-        
+        elif event.type == pyg.MOUSEBUTTONDOWN:
+            if event.button == 1:
+                pyg.mixer.Sound.play(ClickSound)
             
-           
+    selecties,Turn = drawBoard(selecties,Turn)
+    # kingsAlive = checkforking()
+
+    if len(kingsAlive) != 2:
+        running = False
+
+    elif len(kingsAlive) == 2:
+        running = True
+        kingsAlive = []
+            
     pyg.display.flip()
-    #print(clock.get_fps())
+    # print(clock.get_fps())
     clock.tick(60)
 
-print()
-print(f"-"*31)
-print(f"-"*31)
-print(f"---CONGRATUATIONS {kingsAlive[0][1].upper()} WINS---")
-print(f"-"*31)
-print(f"-"*31)
-
 pyg.mixer.Sound.play(WinSound)
-for i in range (0,4):
-    print("Closing","."*i)
-    sleep(0.4)
 
-print()
-print(f"-"*31)
-print(f"-"*31)
-print(f"---CONGRATUATIONS {kingsAlive[0][1].upper()} WINS---")
-print(f"-"*31)
-print(f"-"*31)
+for i in range(1,5):
+    if i == 3:
+        print(f"---CONGRATUATIONS {kingsAlive[0][1].upper()} WINS---")
+        pass
+
+    print(f"-" * 31 )
+
+print("Closing")
+sleep(5)
+
 pyg.quit()
-
