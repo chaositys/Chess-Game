@@ -3,6 +3,9 @@ from pygame.locals import *
 from time import sleep
 from Buttoncreation import Button
 
+# Mods
+NO_TURNS = True
+
 """
                 
                 >>>>>>>>>>>>>>Iggle<<<<<<<<<<<<<<
@@ -165,7 +168,7 @@ class Dragonpiece(piece):
                     self.canactlikecastle = True
 
             board[self.square][0] = Dragonpiece(self.square,self.colour,self.pieceImage,self.boardSize,self.incrementAmound,self.canactlikecastle)
-            self.pieceCapture(oldSqare)#sets old square to "null"
+            self.pieceCapture(oldSqare) #sets old square to "null"
             return True
         else:
             pyg.mixer.Sound.play(ErrorClickSound)
@@ -185,6 +188,7 @@ class Dragonpiece(piece):
                 validornot = True
 
         if self.canactlikecastle:
+            print("can act")
             validornot = self.ismovevalidcastlemove(newSquare)
 
             if validornot:
@@ -935,7 +939,7 @@ def drawBoard(selecties,colourturn):
             elif len(selecties) == 2:
                 print(board[selecties[0]][0].ismovevalid(selecties[1]))
 
-                if board[selecties[0]][0].getColour() != colourturn:
+                if board[selecties[0]][0].getColour() != colourturn and not NO_TURNS:
                     pyg.mixer.Sound.play(ErrorClickSound)
 
                 elif board[selecties[0]][0].movePiece(selecties[1]):
