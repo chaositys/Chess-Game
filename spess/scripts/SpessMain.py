@@ -126,7 +126,7 @@ class Pawnpiece(piece):
         return 0
     def movePiece(self,newSquare):
         if self.ismoveValid(newSquare):
-            self.pieceCapture(newSquare)
+            
             
             oldSqare = self.square
             self.square = newSquare
@@ -152,7 +152,6 @@ class Pawnpiece(piece):
                         print("invalid move, can't move directly ahead when there is not piece to capture")
                         return False                 
                 else:
-                    print("got here")
                     if board.get(newSquare)[0] == "null":
                         return True
                     else:
@@ -1144,14 +1143,7 @@ while running:
         elif event.type == pyg.MOUSEBUTTONDOWN:
             if event.button==1:
                 pyg.mixer.Sound.play(ClickSound)
-            
-    
-    
-    
-    
-        
-    
-    
+
     if Turn == "white":
         selecties,Turn = drawBoard(selecties,Turn)
     elif Turn == "black":
@@ -1174,20 +1166,24 @@ while running:
     pyg.display.flip()
     #print(clock.get_fps())
     clock.tick(60)
-pyg.mixer.Sound.play(WinSound)
-print("Closing")
-sleep(0.4)
-print("Closing.")
-sleep(0.4)
-print("Closing..")
-sleep(0.4)
-print("Closing...")
-sleep(0.4)
-print()
-pyg.quit()
 
+print()
 print(f"-"*31)
 print(f"-"*31)
 print(f"---CONGRATUATIONS {kingsAlive[0][1].upper()} WINS---")
 print(f"-"*31)
 print(f"-"*31)
+
+pyg.mixer.Sound.play(WinSound)
+for i in range (0,4):
+    print("Closing","."*i)
+    sleep(0.4)
+
+print()
+print(f"-"*31)
+print(f"-"*31)
+print(f"---CONGRATUATIONS {kingsAlive[0][1].upper()} WINS---")
+print(f"-"*31)
+print(f"-"*31)
+pyg.quit()
+
