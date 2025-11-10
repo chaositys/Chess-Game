@@ -592,7 +592,7 @@ class Kingpiece(piece):
             firstcastle = self.squareToCordinates(castlepos[0])
             secondcastle = self.squareToCordinates(castlepos[1])
             castlepos = (firstcastle,secondcastle)
-            squaresize = self.boardSize/8
+            squaresize = self.boardSize/86
             if len(castlepos)>1:
                 
                 if firstcastle[1]== secondcastle[1]== self.squareToCordinates(self.square)[1]:
@@ -694,21 +694,28 @@ def startscreen(PieceSet):
     startScreen = pyg.display.set_mode((screenX,screenY))
     screenFillColour = (62,0,207)
     startScreen.fill(screenFillColour)
-    defaultimagepack = pyg.image.load("../Assets/DefaultPieces/DefaultPiecesSet.png")
-    defaultimagepackHover = pyg.image.load("../Assets/DefaultPieces/DefaultPiecesSetHover.png")
-    goldimagepack = pyg.image.load("../Assets/GoldPieces/GoldPiecesSet.png")
-    goldimagepackHover = pyg.image.load("../Assets/GoldPieces/GoldPiecesSetHover.png")
-    defaultimagepackrectvalue = pyg.Rect(screenX/8,screenY/8,100,101)
-    #Christmasimagepackrectvalue = pyg.Rect(2*screenX/8,screenY/8,100,101)
-    Goldimagepackrectvalue = pyg.Rect(2*screenX/8,screenY/8,100,101)#image is 100 px long and 101 pixels high so this is why i set these values ik its annoying its not both 100 but i can't do much now
+    currentsets = ["Default","Gold"]
+    imageicons = {}
+    
+    xindex = 1
+    yindex = 1
+    padding = 0
+    for pack in currentsets:
+        imageicons[pack] = [pyg.image.load(f"../Assets/{pack}Pieces/PiecesSet.png"),pyg.image.load(f"../Assets/{pack}Pieces/PiecesSetHover.png"),pyg.Rect(xindex*screenX/8,padding+(yindex*screenY/8),100,101)]
+        if xindex>=6:
+            xindex = 0
+            yindex +=1
+            if yindex == 2:
+                padding+=20
+                
+        xindex+=1
+        
+    
     coopPlayButton = Button(startScreen,screenX/2,2*(screenY/3),"Play: Offline",30,10)
     InventoryButton = Button(startScreen,(screenX/2),3*(screenY/4),"Inventory",30,10)
     returnButton = Button(startScreen,screenX/20,screenY/20,"X",30,10,"CRIMSON")
-    allPieceSets = {
-        "DefaultPieces":(defaultimagepack,defaultimagepackHover,defaultimagepackrectvalue,0),
-        
-        "GOLDPIECES":(goldimagepack,goldimagepackHover,Goldimagepackrectvalue,1)
-    }
+    
+    
     while running:
         for event in pyg.event.get():
             if event.type == pyg.QUIT:
@@ -742,14 +749,15 @@ def startscreen(PieceSet):
                 screenstage = "Start"
                 startScreen.fill(screenFillColour)
             else:
-                for k in allPieceSets:
-                    setImage = allPieceSets[k][0]
-                    setImageHover = allPieceSets[k][1]
-                    SetRect = allPieceSets[k][2]
-                    numinset = allPieceSets[k][3]+1
+                for k in currentsets:
+                    setImage = imageicons[k][0]
+                    setImageHover = imageicons[k][1]
+                    SetRect = imageicons[k][2]
                     
-                    screenXPlacment = numinset*(screenX/8)
-                    screenYPlacment = (screenY/8)
+                    
+                    screenXPlacment = SetRect[0]
+                    screenYPlacment = SetRect[1]
+                    
                     if SetRect.collidepoint(mouse_pos):
                         
                         startScreen.blit(setImageHover,(screenXPlacment,screenYPlacment))
