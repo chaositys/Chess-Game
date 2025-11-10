@@ -195,24 +195,27 @@ class Dragonpiece(piece):
                 self.canactlikecastle = False
         return validornot
     
-    def ismovevalidcastlemove(self,newSquare):
+    def ismovevalidcastlemove(self, newSquare):
         squaresize = self.boardSize/8
         oldsquarepos = self.squareToCordinates()
         newSquarepos = self.squareToCordinates(newSquare)
-        vertical=0
-        horizontal=0
+        vertical = 0
+        horizontal = 0
 
+        print("1")
         if newSquare == self.square:
+            print("false1")
             return False
         
-        if newSquarepos[0]!=oldsquarepos[0]:
-            if newSquarepos[1]== oldsquarepos[1]:
-                if newSquarepos[0]<oldsquarepos[0]:
-                    horizontal-=squaresize
+        print("2")
+        if newSquarepos[0] != oldsquarepos[0]:
+            if newSquarepos[1] == oldsquarepos[1]:
+                if newSquarepos[0] < oldsquarepos[0]:
+                    horizontal -= squaresize
                 else:
-                    horizontal+=squaresize
+                    horizontal += squaresize
             else:
-                print("Invalid move has too be straight")
+                print("Invalid move, has to be straight...")
                 return False
             
         elif newSquarepos[1] !=oldsquarepos[1]:
@@ -916,8 +919,15 @@ def drawBoard(selecties,colourturn):
                 kingsAlive.append((key, board[key][0].getColour()))
 
         # Hovering code
+        ACTIVE_PATH1 = (21, 148, 91)
+        ACTIVE_PATH2 = (15, 107, 66)
+        HOVER1 = (120,120,40)
+        HOVER2 = (200,200,120)
+        CALCULATED_COLOR = (board[key][5] == (80,80,80) and ACTIVE_PATH2 or ACTIVE_PATH1)
+
+        # (board[key][5] == (80,80,80) and (120,120,40) or (200,200,120))
         isSelected = len(selecties) > 0 and selecties[0] == key
-        calculatedColour = (board[key][6] and (226, 135, 67)) or (isSelected and (81,168,93)) or (board[key][4] and (board[key][5] == (80,80,80) and (120,120,40) or (200,200,120)) or board[key][5]) or board[key][5]
+        calculatedColour = (board[key][6] and CALCULATED_COLOR) or (isSelected and CALCULATED_COLOR) or (board[key][4] and (board[key][5] == (80,80,80) and HOVER1 or HOVER2) or board[key][5]) or board[key][5]
         board[key][2] = calculatedColour
 
         if board[key][3]:
