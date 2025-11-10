@@ -1160,8 +1160,6 @@ while running:
     elif len(kingsAlive)== 2:
         running = True
         kingsAlive=[]
-        
-            
            
     pyg.display.flip()
     #print(clock.get_fps())
