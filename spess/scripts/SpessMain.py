@@ -733,9 +733,8 @@ def startscreen(PieceSet):
     while running:
         startScreen.fill(screenFillColour)
         angle = (angle + 1) % 360
-        print(angle)
         spessTitleGood = pyg.transform.rotate(spesstitle, angle)
-        startScreen.blit(spessTitleGood, (300, 150))
+        startScreen.blit(spessTitleGood, (screenX/3, screenY/7))
 
         for event in pyg.event.get():
             if event.type == pyg.QUIT:
@@ -760,14 +759,13 @@ def startscreen(PieceSet):
 
             if InventoryButton.makeButton(mouse_pos) and clicked:
                 screenstage = "Inventory"
-                startScreen.fill(screenFillColour)
-                pyg.draw.rect(startScreen,(200,200,200),(screenX/10,screenY/10,8*screenX/10,6*screenY/8))
-                pyg.draw.rect(startScreen,(0,0,0),(screenX/10,screenY/10,8*screenX/10,6*screenY/8),2)
-                   
+             
         elif screenstage == "Inventory":
+            pyg.draw.rect(startScreen,(200,200,200),(screenX/10,screenY/10,8*screenX/10,6*screenY/8))
+            pyg.draw.rect(startScreen,(0,0,0),(screenX/10,screenY/10,8*screenX/10,6*screenY/8),2)
+        
             if returnButton.makeButton(mouse_pos) and clicked:
                 screenstage = "Start"
-                startScreen.fill(screenFillColour)
 
             else:
                 for k in currentsets:
@@ -789,7 +787,7 @@ def startscreen(PieceSet):
                                 print(f"Piece Set {PieceSet} is already selected!!!")
                     else: 
                         startScreen.blit(setImage, (screenXPlacment, screenYPlacment))
-      
+
         clicked = False
         pyg.display.flip()
         clock.tick(60)
