@@ -4,6 +4,7 @@ import threading
 from pygame.locals import *
 from time import sleep
 from Buttoncreation import Button
+from random import randint
 
 # Mods
 NO_TURNS = True
@@ -728,13 +729,32 @@ def startscreen(PieceSet):
             sleep(0.05)
 
     threading.Thread(target=menuMusic).start()
-    
+    direction = (randint(1,2),randint(1,2))
+    direction_addition = [0,0]
     angle = 100
+    def newTitlePosition(num,screennummax,direction):
+        if modulus(num) >  screennummax or modulus(num)< 0:
+            direction = (randint(1,2),randint(1,2))
+            print(direction)  
+        
+        return num,direction
     while running:
+        print(direction)
+        if direction[0] == 1:
+            direction_addition[0] += 2
+        elif direction[0] == 2:
+            direction_addition[0] += -2
+        if direction[1] == 1:
+            direction_addition[1] += 2
+        elif direction[1] == 2:
+            direction_addition[1] += -2
         startScreen.fill(screenFillColour)
         angle = (angle + 1) % 360
         spessTitleGood = pyg.transform.rotate(spesstitle, angle)
-        startScreen.blit(spessTitleGood, (screenX/3, screenY/7))
+        
+        screenxtitile,direction = newTitlePosition(screenX/3+direction_addition[0],screenX,direction)
+        screenytitile,direction = newTitlePosition(screenY/7+direction_addition[1],screenY,direction)
+        startScreen.blit(spessTitleGood, (screenxtitile, screenytitile))
 
         for event in pyg.event.get():
             if event.type == pyg.QUIT:
