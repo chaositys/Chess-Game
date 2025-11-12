@@ -733,28 +733,14 @@ def startscreen(PieceSet):
     direction_addition = [0,0]
     angle = 100
     def newTitlePosition(num,screennummax,direction):
-        if modulus(num) >  screennummax or modulus(num)< 0:
+        if modulus(num) >  screennummax-200 or modulus(num)< 1:
             direction = (randint(1,2),randint(1,2))
-            print(direction)  
+            print(num)
         
         return num,direction
     while running:
-        print(direction)
-        if direction[0] == 1:
-            direction_addition[0] += 2
-        elif direction[0] == 2:
-            direction_addition[0] += -2
-        if direction[1] == 1:
-            direction_addition[1] += 2
-        elif direction[1] == 2:
-            direction_addition[1] += -2
-        startScreen.fill(screenFillColour)
-        angle = (angle + 1) % 360
-        spessTitleGood = pyg.transform.rotate(spesstitle, angle)
         
-        screenxtitile,direction = newTitlePosition(screenX/3+direction_addition[0],screenX,direction)
-        screenytitile,direction = newTitlePosition(screenY/7+direction_addition[1],screenY,direction)
-        startScreen.blit(spessTitleGood, (screenxtitile, screenytitile))
+        
 
         for event in pyg.event.get():
             if event.type == pyg.QUIT:
@@ -774,11 +760,31 @@ def startscreen(PieceSet):
             
         mouse_pos = pyg.mouse.get_pos()
         if  screenstage == "Start":
+            if direction[0] == 1:
+                direction_addition[0] += 2
+            elif direction[0] == 2:
+                direction_addition[0] += -2
+            if direction[1] == 1:
+                direction_addition[1] += 2
+            elif direction[1] == 2:
+                direction_addition[1] += -2
+            startScreen.fill(screenFillColour)
+            angle = (angle + 1) % 360
+            spessTitleGood = pyg.transform.rotate(spesstitle, angle)
+            
+            screenxtitile,direction = newTitlePosition(screenX/3+direction_addition[0],screenX,direction)
+            screenytitile,direction = newTitlePosition(screenY/7+direction_addition[1],screenY,direction)
+            startScreen.blit(spessTitleGood, (screenxtitile, screenytitile))
             if coopPlayButton.makeButton(mouse_pos) and clicked:
                 running = False
+                startScreen.fill(screenFillColour)
+            
+                
+                
 
             if InventoryButton.makeButton(mouse_pos) and clicked:
                 screenstage = "Inventory"
+                startScreen.fill(screenFillColour)
              
         elif screenstage == "Inventory":
             pyg.draw.rect(startScreen,(200,200,200),(screenX/10,screenY/10,8*screenX/10,6*screenY/8))
