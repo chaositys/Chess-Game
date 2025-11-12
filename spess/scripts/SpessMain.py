@@ -1,4 +1,6 @@
 import pygame as pyg
+import os
+import threading
 from pygame.locals import *
 from time import sleep
 from Buttoncreation import Button
@@ -663,58 +665,99 @@ class Kingpiece(piece):
                     
                     multiple+=addon
 
+PATHC = os.path.join
+ASSET_PATH = PATHC("Spess", "Assets")
+AUDIO_PATH = PATHC("Spess", "Audio")
+DATA_PATH = PATHC("Spess", "Data")
+PYIMAGE = pyg.image.load
+
 def startscreen(PieceSet):
+    PieceSet = PieceSet or "Default"
     print(PieceSet)
-    running=True
-    clicked=False
+    running = True
+    clicked = False
     
+    clock = pyg.time.Clock()
+    logo = PYIMAGE(PATHC(ASSET_PATH, "Logo", "spessLogo.ico"))
+    pyg.display.set_icon(logo)
+    pyg.display.set_caption("Spess")
+
     screenstage = "Start"
     pyg.mixer.Sound.play(StartupSound)
     screenX = 1000
     screenY = 800
     startScreen = pyg.display.set_mode((screenX,screenY))
-    screenFillColour = (62,0,207)
-    startScreen.fill(screenFillColour)
+    screenFillColour = (62, 0, 207)
     currentsets = ["Default","Gold","X"]
     imageicons = {}
     
+    spesstitle = PYIMAGE(PATHC(ASSET_PATH, "Logo", "spessTitle.png"))
+
     xindex = 1
     yindex = 1
     padding = 0
     for pack in currentsets:
-        imageicons[pack] = [pyg.image.load(f"../Assets/{pack}Pieces/PiecesSet.png"),pyg.image.load(f"../Assets/{pack}Pieces/PiecesSetHover.png"),pyg.Rect(xindex*screenX/8,padding+(yindex*screenY/8),100,101)]
-        if xindex>=6:
+        imageicons[pack] = [
+            PYIMAGE(PATHC(ASSET_PATH, pack + "Pieces", "PiecesSet.png")),
+            PYIMAGE(PATHC(ASSET_PATH, pack + "Pieces", "PiecesSetHover.png")),
+            pyg.Rect(xindex * screenX / 8, padding +( yindex * screenY / 8), 100, 101)
+        ]
+
+        if xindex >= 6:
             xindex = 0
             yindex +=1
             if yindex == 2:
-                padding+=20
+                padding += 20
                 
-        xindex+=1
+        xindex += 1
         
-    coopPlayButton = Button(startScreen,screenX/2,2*(screenY/3),"Play: Offline",30,10)
-    InventoryButton = Button(startScreen,(screenX/2),3*(screenY/4),"Inventory",30,10)
-    returnButton = Button(startScreen,screenX/20,screenY/20,"X",30,10,"CRIMSON")
+    coopPlayButton = Button(startScreen, screenX / 2, 2 * (screenY / 3), "Play: Offline", 30, 10)
+    InventoryButton = Button(startScreen, (screenX / 2), 3 * (screenY / 4), "Inventory", 30, 10)
+    returnButton = Button(startScreen, screenX / 20, screenY / 20, "X", 30, 10,"CRIMSON")
 
+    def menuMusic():
+        sleep(2)
+        pyg.mixer.music.load(PATHC(AUDIO_PATH, "menuMusic.mp3"))
+
+        pyg.mixer.music.play(1)
+        pyg.mixer.music.set_pos(50)
+        pyg.mixer.music.set_volume(0)
+
+        for i in range(1,25):
+            pyg.mixer.music.set_volume(i / 10)
+            sleep(0.05)
+
+    threading.Thread(target=menuMusic).start()
+    
+    angle = 100
     while running:
+        startScreen.fill(screenFillColour)
+        angle = (angle + 1) % 360
+        print(angle)
+        spessTitleGood = pyg.transform.rotate(spesstitle, angle)
+        startScreen.blit(spessTitleGood, (300, 150))
+
         for event in pyg.event.get():
             if event.type == pyg.QUIT:
-                running=False
+                running = False
                 
-                with open("../Data/Currentpack.txt","w",encoding="utf-8") as f:
+                with open(PATHC(DATA_PATH, "Currentpack.txt"), "w", encoding = "utf-8") as f:
                     f.write(PieceSet)
                 raise SystemExit
+            
             elif event.type == pyg.MOUSEBUTTONDOWN:
                 if event.button==1:
                     pyg.mixer.Sound.play(ClickSound)
+
             elif event.type == pyg.MOUSEBUTTONUP:
                 if event.button == 1:
                     clicked = True
             
         mouse_pos = pyg.mouse.get_pos()
         if  screenstage == "Start":
-            
             if coopPlayButton.makeButton(mouse_pos) and clicked:
                 running = False
+
             if InventoryButton.makeButton(mouse_pos) and clicked:
                 screenstage = "Inventory"
                 startScreen.fill(screenFillColour)
@@ -722,10 +765,10 @@ def startscreen(PieceSet):
                 pyg.draw.rect(startScreen,(0,0,0),(screenX/10,screenY/10,8*screenX/10,6*screenY/8),2)
                    
         elif screenstage == "Inventory":
-            
             if returnButton.makeButton(mouse_pos) and clicked:
                 screenstage = "Start"
                 startScreen.fill(screenFillColour)
+
             else:
                 for k in currentsets:
                     setImage = imageicons[k][0]
@@ -736,18 +779,16 @@ def startscreen(PieceSet):
                     screenYPlacment = SetRect[1]
 
                     if SetRect.collidepoint(mouse_pos):
-                        
-                        startScreen.blit(setImageHover,(screenXPlacment,screenYPlacment))
+                        startScreen.blit(setImageHover, (screenXPlacment, screenYPlacment))
                         
                         if SetRect.collidepoint(mouse_pos) and clicked:
-                            
                             if k != PieceSet:
                                 PieceSet = k
                                 print(f"{PieceSet} Selected!!!")
                             elif k== PieceSet:
                                 print(f"Piece Set {PieceSet} is already selected!!!")
                     else: 
-                        startScreen.blit(setImage,(screenXPlacment,screenYPlacment))
+                        startScreen.blit(setImage, (screenXPlacment, screenYPlacment))
       
         clicked = False
         pyg.display.flip()
@@ -755,61 +796,64 @@ def startscreen(PieceSet):
     pyg.quit()
     return PieceSet
 
+# Loading main menu...
 pyg.init()
-clock = pyg.time.Clock()
-logo = pyg.image.load("../Assets/Logo/spessLogo.ico")
-pyg.display.set_icon(logo)
-pyg.display.set_caption("Spess")
-font = pyg.font.Font(None, 36)
-StartupSound = pyg.mixer.Sound("../Audio/StartupSound.mp3")
+
+StartupSound = pyg.mixer.Sound(PATHC(AUDIO_PATH, "StartupSound.mp3"))
 StartupSound.set_volume(1)
-ClickSound = pyg.mixer.Sound("../Audio/MouseClick.mp3")
+
+ClickSound = pyg.mixer.Sound(PATHC(AUDIO_PATH, "MouseClick.mp3"))
 ClickSound.set_volume(0.15)
 
-with open("../Data/currentpack.txt","r",encoding="utf-8") as f:
+# Auto equipping previously selected skins.
+with open(PATHC(DATA_PATH, "currentpack.txt"), "r" , encoding="utf-8") as f:
     PieceSet = f.read()
 
 PieceSet = startscreen(PieceSet)
-with open("../Data/Currentpack.txt","w",encoding="utf-8") as f:
+with open(PATHC(DATA_PATH, "currentpack.txt"), "w", encoding="utf-8") as f:
     f.write(PieceSet)
 
-
+# Loading main pygame scene.
 pyg.init() 
 screendimention = 1000 
 screen = pyg.display.set_mode((screendimention, screendimention))
+
 pyg.display.set_caption("Spess")
-logo = pyg.image.load("../Assets/Logo/SpessLogo.ico")
+logo = PYIMAGE(PATHC(ASSET_PATH, "Logo", "spessLogo.ico"))
 pyg.display.set_icon(logo)
+
 font = pyg.font.Font(None, 36)
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
 running = True
 clock = pyg.time.Clock()
 
-BlackpawnImage = pyg.image.load(f"../Assets/{PieceSet}Pieces/blackAssets/Blackpawn.png")
-BlackrookImage = pyg.image.load(f"../Assets/{PieceSet}Pieces/blackAssets/Blackrook.png")
-BlackkniteImage= pyg.image.load(f"../Assets/{PieceSet}Pieces/blackAssets/Blackknite.png")
-BlackbishopImage= pyg.image.load(f"../Assets/{PieceSet}Pieces/blackAssets/Blackbishop.png")
-BlackqueenImage= pyg.image.load(f"../Assets/{PieceSet}Pieces/blackAssets/Blackqueen.png")
-BlackkingImage= pyg.image.load(f"../Assets/{PieceSet}Pieces/blackAssets/Blackking.png")
-WhitepawnImage = pyg.image.load(f"../Assets/{PieceSet}Pieces/whiteAssets/Whitepawn.png")
-WhiterookImage = pyg.image.load(f"../Assets/{PieceSet}Pieces/whiteAssets/Whiterook.png")
-WhitekniteImage = pyg.image.load(f"../Assets/{PieceSet}Pieces/whiteAssets/Whiteknite.png")
-WhitebishopImage= pyg.image.load(f"../Assets/{PieceSet}Pieces/whiteAssets/Whitebishop.png")
-WhitequeenImage= pyg.image.load(f"../Assets/{PieceSet}Pieces/whiteAssets/Whitequeen.png")
-WhitekingImage= pyg.image.load(f"../Assets/{PieceSet}Pieces/whiteAssets/Whiteking.png")
-StartupSound = pyg.mixer.Sound("../Audio/StartupSound.mp3")
-StartupSound.set_volume(1)
-ErrorClickSound = pyg.mixer.Sound("../Audio/ErrorClickSound.wav")
-ErrorClickSound.set_volume(0.2)
-ClickSound = pyg.mixer.Sound("../Audio/MouseClick.mp3")
-ClickSound.set_volume(0.15)
-TakeSound = pyg.mixer.Sound("../Audio/takesound.mp3")
-TakeSound.set_volume(0.6)
-BackgroundMusic = pyg.mixer.music.load("../Audio/backgroundMusic.mp3")
+# Loading images
+BLACK_PATH = PATHC(ASSET_PATH, PieceSet + "Pieces", "blackAssets")
+WHITE_PATH = PATHC(ASSET_PATH, PieceSet + "Pieces", "whiteAssets")
 
-WinSound = pyg.mixer.Sound("../Audio/WinSound.mp3")
+BlackpawnImage      = PYIMAGE(PATHC(BLACK_PATH, "Blackpawn.png"))
+BlackrookImage      = PYIMAGE(PATHC(BLACK_PATH, "Blackrook.png"))
+BlackkniteImage     = PYIMAGE(PATHC(BLACK_PATH, "Blackknite.png"))
+BlackbishopImage    = PYIMAGE(PATHC(BLACK_PATH, "Blackbishop.png"))
+BlackqueenImage     = PYIMAGE(PATHC(BLACK_PATH, "Blackqueen.png"))
+BlackkingImage      = PYIMAGE(PATHC(BLACK_PATH, "Blackking.png"))
+WhitepawnImage      = PYIMAGE(PATHC(WHITE_PATH, "Whitepawn.png"))
+WhiterookImage      = PYIMAGE(PATHC(WHITE_PATH, "Whiterook.png"))
+WhitekniteImage     = PYIMAGE(PATHC(WHITE_PATH, "Whiteknite.png"))
+WhitebishopImage    = PYIMAGE(PATHC(WHITE_PATH, "Whitebishop.png"))
+WhitequeenImage     = PYIMAGE(PATHC(WHITE_PATH, "Whitequeen.png"))
+WhitekingImage      = PYIMAGE(PATHC(WHITE_PATH, "Whiteking.png"))
+
+ErrorClickSound = pyg.mixer.Sound(PATHC(AUDIO_PATH, "ErrorClickSound.wav"))
+ErrorClickSound.set_volume(0.2)
+
+TakeSound = pyg.mixer.Sound(PATHC(AUDIO_PATH, "takesound.mp3"))
+TakeSound.set_volume(0.6)
+
+BackgroundMusic = pyg.mixer.music.load(PATHC(AUDIO_PATH, "backgroundMusic.mp3"))
+
+WinSound = pyg.mixer.Sound(PATHC(AUDIO_PATH, "WinSound.mp3"))
 WinSound.set_volume(0.075)
+
 keys = []
 key_colour=""
 selected =""
@@ -1017,7 +1061,7 @@ def whichsquarehover():
         
 def change_to_hover_colour(hovering_square):
     current_colour = board[hovering_square][2] 
-    new_colour = (current_colour[0]+40,current_colour[1]+40,current_colour[2]-40) 
+    new_colour = (current_colour[0] + 40, current_colour[1] + 40, current_colour[2] - 40) 
     board[hovering_square][2] = new_colour
     
 def handle_hovering_square():
