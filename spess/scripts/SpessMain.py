@@ -733,10 +733,31 @@ def startscreen(PieceSet):
     direction_addition = [0,0]
     angle = 100
     def newTitlePosition(num,screennummax,direction):
-        if modulus(num) >  screennummax-200 or modulus(num)< 1:
-            direction = (randint(1,2),randint(1,2))
+        if num >  screennummax-200:
+            
+            if direction[0]==1:
+                
+                direction = (2,randint(1,2))
+            elif direction[0] == 2:
+                direction = (1,randint(1,2))
+            if direction[1]==1:
+                direction = (randint(1,2),2)
+            elif direction[1]==2:
+                direction = (randint(1,2),1)
+            num = screennummax-220
             print(num)
-        
+        elif num< 0:
+            if direction[0]==1:
+                
+                direction = (2,randint(1,2))
+            elif direction[0] == 2:
+                direction = (1,randint(1,2))
+            if direction[1]==1:
+                direction = (randint(1,2),2)
+            elif direction[1]==2:
+                direction = (randint(1,2),1)
+            num = 20
+            print(num)
         return num,direction
     while running:
         
